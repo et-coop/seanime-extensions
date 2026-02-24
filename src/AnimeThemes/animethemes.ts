@@ -1,36 +1,33 @@
+
 function init() {
     $ui.register((ctx) => {
+
         const STORAGE_KEYS = {
-            START_MINIMIZED: "anime-player.startMinimized",
-            AUTOPLAY: "anime-player.autoplay",
-            PROVIDER: "anime-player.provider",
-            VOLUME: "anime-player.volume",
-            MANUAL_MATCHES: "anime-player.manualMatches" // nuevo
-        };
+            AUTOPLAY:       "anime-player.autoplay",
+            PROVIDER:       "anime-player.provider",
+            VOLUME:         "anime-player.volume",
+            MANUAL_MATCHES: "anime-player.manualMatches",
+        } as const;
 
-        const SELECTORS = {
-            PLAYER: "#anime-theme-player",
-            SCRIPT: "script[data-anime-player]"
-        };
+        // Embedded assets
+        const PLAYER_CSS: string = "#anime-theme-player {\n    width: 100%;\n    background: #070707;\n    border: 1px solid #ffffff0d;\n    border-radius: 12px;\n    overflow: hidden;\n    font-family: Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n    color: #e8e8e8;\n    margin-bottom: 2rem;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    z-index: 50;\n    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n}\n\n.atp-toolbar {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 8px 16px;\n    background: #0a0a0a;\n    border-bottom: 1px solid #ffffff05;\n    flex-shrink: 0;\n}\n\n.atp-provider-group {\n    display: flex;\n    align-items: center;\n    gap: 8px;\n}\n\n.atp-provider-label {\n    font-size: 11px;\n    font-weight: 700;\n    color: #555;\n    text-transform: uppercase;\n    letter-spacing: 0.05em;\n}\n\n.atp-toolbar-actions {\n    display: flex;\n    gap: 8px;\n}\n\n.atp-icon-btn {\n    background: transparent;\n    border: 1px solid transparent;\n    color: #666;\n    cursor: pointer;\n    width: 28px;\n    height: 28px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: 6px;\n    transition: all 0.2s;\n    padding: 0;\n}\n\n.atp-icon-btn:hover {\n    color: #fff;\n    background: #ffffff0a;\n}\n\n.atp-icon-btn.active {\n    color: #4a89dc;\n    background: #4a89dc15;\n}\n\n.atp-icon-btn.danger:hover {\n    color: #ff5555;\n    background: #ff555515;\n}\n\n.atp-body {\n    display: flex;\n    flex-direction: row;\n    height: 70vh;\n    min-height: 500px;\n}\n\n.atp-themes-col {\n    width: 280px;\n    flex-shrink: 0;\n    border-right: 1px solid #ffffff0d;\n    background: #090909;\n    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n    overflow: hidden;\n    display: flex;\n    flex-direction: column;\n    height: 100%;\n}\n\n.atp-themes-col.collapsed {\n    width: 0;\n    border-right: none;\n}\n\n.atp-themes-list {\n    flex: 1;\n    overflow-y: auto;\n    padding: 0;\n    scrollbar-width: thin;\n    scrollbar-color: #333 transparent;\n}\n\n.theme-item {\n    display: flex;\n    align-items: center;\n    padding: 10px 16px;\n    border-bottom: 1px solid #ffffff05;\n    cursor: pointer;\n    justify-content: space-between;\n}\n\n.theme-item:hover {\n    background: #ffffff05;\n}\n\n.theme-item.active {\n    background: #ffffff0a;\n    border-left: 3px solid #4a89dc;\n    padding-left: 13px;\n}\n\n.theme-item-row {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    flex: 1;\n    overflow: hidden;\n}\n\n.theme-type-badge {\n    font-size: 10px;\n    font-weight: 700;\n    color: #888;\n    background: #ffffff08;\n    padding: 3px 6px;\n    border-radius: 4px;\n    min-width: 30px;\n    text-align: center;\n    flex-shrink: 0;\n    white-space: nowrap;\n}\n\n.theme-item.active .theme-type-badge {\n    color: #4a89dc;\n    background: #4a89dc15;\n}\n\n.theme-song {\n    font-size: 13px;\n    color: #ddd;\n    font-weight: 500;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n.theme-artist {\n    font-size: 11px;\n    color: #666;\n    margin-left: auto;\n    padding-left: 10px;\n    max-width: 30%;\n    text-align: right;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n.theme-actions {\n    display: none;\n}\n\n.atp-main-col {\n    flex: 1;\n    display: flex;\n    flex-direction: column;\n    min-width: 0;\n    height: 100%;\n    background: #000;\n}\n\n.atp-info-bar {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    padding: 12px 20px;\n    background: #070707;\n    border-bottom: 1px solid #ffffff05;\n    flex-shrink: 0;\n}\n\n.atp-song-info {\n    display: flex;\n    align-items: center;\n    gap: 16px;\n    overflow: hidden;\n}\n\n.atp-song-badge {\n    background: #ffffff10;\n    color: #aaa;\n    font-size: 14px;\n    font-weight: 800;\n    padding: 6px 10px;\n    border-radius: 6px;\n    text-align: center;\n    white-space: nowrap;\n}\n\n.atp-song-details {\n    display: flex;\n    flex-direction: column;\n    overflow: hidden;\n    gap: 2px;\n}\n\n.atp-song-title {\n    font-size: 16px;\n    font-weight: 600;\n    color: #fff;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n.atp-song-artist {\n    font-size: 12px;\n    color: #666;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n.atp-main-controls {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    flex-shrink: 0;\n}\n\n.atp-big-ctrl-btn {\n    width: 32px;\n    height: 32px;\n    border-radius: 6px;\n    border: 1px solid #ffffff10;\n    background: #ffffff05;\n    color: #ddd;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer;\n    transition: all 0.15s;\n}\n\n.atp-big-ctrl-btn:hover {\n    background: #ffffff10;\n    color: #fff;\n    border-color: #ffffff20;\n}\n\n.atp-big-ctrl-btn.active {\n    background: #ffffff20;\n    color: #fff;\n    border-color: #ffffff30;\n}\n\n.atp-video-wrapper {\n    width: 100%;\n    flex: 1;\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    overflow: hidden;\n    background: #000;\n}\n\n#anime-theme-player video {\n\n    width: auto;\n    height: auto;\n\n    max-width: 100%;\n    max-height: 100%;\n\n    display: block;\n\n    margin: auto;\n\n    object-fit: contain;\n}\n\n.atp-video-wrapper.audio-only-mode video {\n    display: none !important;\n}\n\n.atp-audio-only-overlay {\n    display: none;\n    flex-direction: column;\n    align-items: center;\n    gap: 10px;\n    color: #666;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.atp-video-wrapper.audio-only-mode .atp-audio-only-overlay {\n    display: flex !important;\n}\n\n.atp-idle {\n    color: #444;\n    font-size: 14px;\n    position: absolute;\n}\n\n.atp-audio-only-overlay svg {\n    width: 48px;\n    height: 48px;\n    opacity: 0.5;\n}\n\n.atp-overlay-controls {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);\n    padding: 20px 16px 12px;\n    opacity: 0;\n    transition: opacity 0.2s;\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n    z-index: 10;\n}\n\n.atp-video-wrapper:hover .atp-overlay-controls,\n.atp-video-wrapper.audio-only-mode .atp-overlay-controls {\n    opacity: 1;\n}\n\n.atp-progress-row {\n    display: flex;\n    align-items: center;\n    gap: 10px;\n    width: 100%;\n}\n\n.atp-time {\n    font-size: 11px;\n    color: #ddd;\n    font-variant-numeric: tabular-nums;\n    width: 35px;\n}\n\n.atp-progress-bar {\n    flex: 1;\n    height: 4px;\n    background: rgba(255, 255, 255, 0.2);\n    border-radius: 4px;\n    cursor: pointer;\n    position: relative;\n}\n\n.atp-progress-bar:hover {\n    height: 6px;\n}\n\n.atp-progress-fill {\n    height: 100%;\n    background: #4a89dc;\n    border-radius: 4px;\n    width: 0;\n}\n\n.atp-sub-controls {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n}\n\n.atp-sub-controls .spacer {\n    flex: 1;\n}\n\n.atp-ctrl-btn {\n    background: none;\n    border: none;\n    color: #ccc;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 4px;\n    border-radius: 4px;\n}\n\n.atp-ctrl-btn:hover {\n    color: #fff;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.atp-volume-track {\n    width: 60px;\n    height: 4px;\n    background: rgba(255, 255, 255, 0.2);\n    border-radius: 4px;\n    cursor: pointer;\n}\n\n.atp-volume-fill {\n    height: 100%;\n    background: #fff;\n    border-radius: 4px;\n    width: 50%;\n}\n\n.atp-manual-panel {\n    display: none;\n    padding: 10px 16px;\n    background: #111;\n    border-bottom: 1px solid #ffffff05;\n    flex-shrink: 0;\n}\n\n.atp-manual-panel.visible {\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n}\n\n.atp-manual-search-row {\n    display: flex;\n    gap: 8px;\n}\n\n.atp-manual-input {\n    flex: 1;\n    background: #222;\n    border: 1px solid #333;\n    color: #fff;\n    padding: 6px 10px;\n    border-radius: 4px;\n    font-size: 13px;\n}\n\n.atp-manual-provider-select,\n.atp-manual-search-btn,\n.atp-manual-clear-btn {\n    font-size: 13px;\n    padding: 6px 12px;\n    border-radius: 4px;\n    cursor: pointer;\n}\n\n.atp-manual-provider-select {\n    background: #222;\n    border: 1px solid #333;\n    color: #ddd;\n}\n\n.atp-manual-search-btn {\n    background: #4a89dc15;\n    border: 1px solid #4a89dc30;\n    color: #5d9cec;\n}\n\n.atp-manual-clear-btn {\n    background: transparent;\n    border: 1px solid #ffffff10;\n    color: #777;\n}\n\n.atp-anime-results {\n    background: #1a1a1a;\n    margin-top: 5px;\n    border-radius: 4px;\n    max-height: 150px;\n    overflow-y: auto;\n    display: none;\n}\n\n.atp-anime-results.visible {\n    display: flex;\n    flex-direction: column;\n}\n\n.anime-result-item {\n    padding: 8px 12px;\n    cursor: pointer;\n    color: #ccc;\n    font-size: 13px;\n    border-bottom: 1px solid #ffffff05;\n}\n\n.anime-result-item:hover {\n    background: #333;\n    color: #fff;\n}\n\n.atp-status {\n    padding: 20px;\n    text-align: center;\n    font-size: 13px;\n    color: #555;\n}\n\n.atp-spinner {\n    width: 16px;\n    height: 16px;\n    border: 2px solid #333;\n    border-top-color: #4a89dc;\n    border-radius: 50%;\n    animation: atp-spin 0.8s linear infinite;\n    display: inline-block;\n    vertical-align: middle;\n    margin-right: 8px;\n}\n\n@keyframes atp-spin {\n    to {\n        transform: rotate(360deg);\n    }\n}";
+        const PLAYER_HTML: string = "<div id=\"anime-theme-player\" class=\"atp-redesign-v2\">\n\n    <div class=\"atp-toolbar\">\n        <div class=\"atp-provider-group\">\n            <button class=\"atp-icon-btn\" id=\"atp-provider-btn\" title=\"Change provider\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-rotate-ccw-icon lucide-rotate-ccw\"><path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/></svg>            </button>\n            <span class=\"atp-provider-label\" id=\"atp-provider-label\">AnimeThemes</span>\n        </div>\n\n        <div class=\"atp-toolbar-actions\">\n            <button class=\"atp-icon-btn\" id=\"atp-manual-btn\" title=\"Manual match\">\n                <span class=\"atp-manual-dot\" id=\"atp-manual-dot\"></span>\n                <svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"7\" cy=\"7\" r=\"5\"/><line x1=\"11\" y1=\"11\" x2=\"15\" y2=\"15\"/></svg>\n            </button>\n            <button class=\"atp-icon-btn active\" id=\"atp-toggle-list\" title=\"Toggle theme list\">\n                <svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><rect x=\"2\" y=\"2\" width=\"12\" height=\"12\" rx=\"2\"/><line x1=\"6\" y1=\"2\" x2=\"6\" y2=\"14\"/></svg>\n            </button>\n            <button class=\"atp-icon-btn danger\" id=\"atp-close-btn\" title=\"Close player\">\n                <svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\"><line x1=\"2\" y1=\"2\" x2=\"14\" y2=\"14\"/><line x1=\"14\" y1=\"2\" x2=\"2\" y2=\"14\"/></svg>\n            </button>\n        </div>\n    </div>\n\n    <div class=\"atp-manual-panel\" id=\"atp-manual-panel\">\n        <div class=\"atp-manual-search-row\">\n            <input class=\"atp-manual-input\" id=\"atp-manual-input\" type=\"text\" placeholder=\"Search anime…\"/>\n            <select class=\"atp-manual-provider-select\" id=\"atp-manual-provider\">\n                <option value=\"animethemes\">AnimeThemes</option>\n                <option value=\"anisongdb\">AniSongDB</option>\n            </select>\n            <button class=\"atp-manual-search-btn\" id=\"atp-manual-search-btn\">Search</button>\n            <button class=\"atp-manual-clear-btn\" id=\"atp-manual-clear-btn\">Clear</button>\n        </div>\n        <div class=\"atp-anime-results\" id=\"atp-anime-results\"></div>\n    </div>\n\n    <div class=\"atp-body\">\n\n        <div class=\"atp-themes-col\" id=\"atp-themes-col\">\n            <div class=\"atp-themes-list\" id=\"atp-themes-list\">\n                <div class=\"atp-status\"><span class=\"atp-spinner\"></span>Loading themes…</div>\n            </div>\n        </div>\n\n        <div class=\"atp-main-col\">\n            <div class=\"atp-info-bar\">\n                <div class=\"atp-song-info\">\n                    <div class=\"atp-song-badge\" id=\"atp-song-badge\">OP1</div>\n                    <div class=\"atp-song-details\">\n                        <div class=\"atp-song-title\" id=\"atp-song-title\">Select a theme</div>\n                        <div class=\"atp-song-artist\" id=\"atp-song-artist\">...</div>\n                    </div>\n                </div>\n\n                <div class=\"atp-main-controls\">\n                    <button class=\"atp-big-ctrl-btn\" id=\"atp-audio-only-btn\" title=\"Audio only\">\n                        <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>\n                    </button>\n                </div>\n            </div>\n\n            <div class=\"atp-video-wrapper\" id=\"atp-video-wrapper\">\n\n                <div class=\"atp-idle\" id=\"atp-idle\">\n                    <span>Waiting for selection...</span>\n                </div>\n                <div class=\"atp-audio-only-overlay\" id=\"atp-audio-overlay\">\n                    <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>\n                    <span>Audio Mode Active</span>\n                </div>\n\n                <div class=\"atp-overlay-controls\" id=\"atp-controls\">\n                    <div class=\"atp-progress-row\">\n                        <span class=\"atp-time\" id=\"atp-current-time\">0:00</span>\n                        <div class=\"atp-progress-bar\" id=\"atp-progress-bar\">\n                            <div class=\"atp-progress-fill\" id=\"atp-progress-fill\"></div>\n                        </div>\n                        <span class=\"atp-time\" id=\"atp-duration\">0:00</span>\n                    </div>\n\n                    <div class=\"atp-sub-controls\">\n                        <button class=\"atp-ctrl-btn\" id=\"atp-play-btn\" title=\"Play / Pause\" style=\"margin-right: 8px;\">\n                            <svg id=\"atp-play-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><polygon points=\"5 3 19 12 5 21 5 3\"/></svg>\n                            <svg id=\"atp-pause-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" style=\"display:none\"><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\"/><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\"/></svg>\n                        </button>\n\n                        <button class=\"atp-ctrl-btn\" id=\"atp-skip-back\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"1 4 1 10 7 10\"/><path d=\"M3.51 15a9 9 0 1 0 .49-3.5\"/><text x=\"8\" y=\"17\" font-size=\"6\" fill=\"currentColor\" stroke=\"none\">10</text></svg></button>\n                        <button class=\"atp-ctrl-btn\" id=\"atp-skip-fwd\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"23 4 23 10 17 10\"/><path d=\"M20.49 15a9 9 0 1 1-.49-3.5\"/><text x=\"8\" y=\"17\" font-size=\"6\" fill=\"currentColor\" stroke=\"none\">10</text></svg></button>\n\n                        <div class=\"spacer\"></div>\n\n                        <button class=\"atp-ctrl-btn\" id=\"atp-mute-btn\">\n                            <svg id=\"atp-vol-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"/><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14\"/></svg>\n                            <svg id=\"atp-muted-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" style=\"display:none\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><line x1=\"23\" y1=\"9\" x2=\"17\" y2=\"15\"/><line x1=\"17\" y1=\"9\" x2=\"23\" y2=\"15\"/></svg>\n                        </button>\n                        <div class=\"atp-volume-track\" id=\"atp-volume-track\">\n                            <div class=\"atp-volume-fill\" id=\"atp-volume-fill\"></div>\n                        </div>\n\n                        <button class=\"atp-ctrl-btn\" id=\"atp-fullscreen-btn\">\n                            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><polyline points=\"15 3 21 3 21 9\"/><polyline points=\"9 21 3 21 3 15\"/><line x1=\"21\" y1=\"3\" x2=\"14\" y2=\"10\"/><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"/></svg>\n                        </button>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n\n    <span id=\"atp-now-playing\" style=\"display:none\"></span>\n</div>";
+        const PLAYER_JS_BODY: string = "const $ = (id) => document.getElementById(id);\n\nconst els = {\n    player:           $(\"anime-theme-player\"),\n    providerLabel:    $(\"atp-provider-label\"),\n    nowPlaying:       $(\"atp-now-playing\"),\n    toggleListBtn:    $(\"atp-toggle-list\"),\n    manualBtn:        $(\"atp-manual-btn\"),\n    manualDot:        $(\"atp-manual-dot\"),\n    providerBtn:      $(\"atp-provider-btn\"),\n    closeBtn:         $(\"atp-close-btn\"),\n    themesList:       $(\"atp-themes-list\"),\n    themesCol:        $(\"atp-themes-col\"),\n    videoWrapper:     $(\"atp-video-wrapper\"),\n    idle:             $(\"atp-idle\"),\n    audioOverlay:     $(\"atp-audio-overlay\"),\n    currentTime:      $(\"atp-current-time\"),\n    duration:         $(\"atp-duration\"),\n    progressBar:      $(\"atp-progress-bar\"),\n    progressFill:     $(\"atp-progress-fill\"),\n    playBtn:          $(\"atp-play-btn\"),\n    playIcon:         $(\"atp-play-icon\"),\n    pauseIcon:        $(\"atp-pause-icon\"),\n    skipBack:         $(\"atp-skip-back\"),\n    skipFwd:          $(\"atp-skip-fwd\"),\n    audioOnlyBtn:     $(\"atp-audio-only-btn\"),\n    fullscreenBtn:    $(\"atp-fullscreen-btn\"),\n    muteBtn:          $(\"atp-mute-btn\"),\n    volIcon:          $(\"atp-vol-icon\"),\n    mutedIcon:        $(\"atp-muted-icon\"),\n    volumeTrack:      $(\"atp-volume-track\"),\n    volumeFill:       $(\"atp-volume-fill\"),\n    manualPanel:      $(\"atp-manual-panel\"),\n    manualInput:      $(\"atp-manual-input\"),\n    manualProvider:   $(\"atp-manual-provider\"),\n    manualSearchBtn:  $(\"atp-manual-search-btn\"),\n    manualClearBtn:   $(\"atp-manual-clear-btn\"),\n    animeResults:     $(\"atp-anime-results\"),\n};\n\nlet video           = null;\nlet currentVolume   = INITIAL_VOLUME;\nlet isMuted         = false;\nlet isAudioOnly     = false;\nlet isListVisible   = true;\nlet isManualVisible = false;\nlet attemptedProviders = new Set();\n\n// Helpers\nconst fmt = (s) => {\n    if (isNaN(s) || s === Infinity) return \"0:00\";\n    const m = Math.floor(s / 60);\n    const sec = Math.floor(s % 60);\n    return `${m}:${sec.toString().padStart(2, \"0\")}`;\n};\n\nconst setPlaying = (playing) => {\n    els.playIcon.style.display  = playing ? \"none\" : \"\";\n    els.pauseIcon.style.display = playing ? \"\" : \"none\";\n};\n\nconst setMuted = (muted) => {\n    isMuted = muted;\n    els.volIcon.style.display   = muted ? \"none\" : \"\";\n    els.mutedIcon.style.display = muted ? \"\" : \"none\";\n    if (video) video.muted = muted;\n};\n\nconst setVolume = (v) => {\n    currentVolume = Math.max(0, Math.min(1, v));\n    els.volumeFill.style.width = `${currentVolume * 100}%`;\n    if (video) video.volume = currentVolume;\n};\n\nconst setProviderLabel = () => {\n    els.providerLabel.textContent = PROVIDER === \"animethemes\" ? \"AnimeThemes\" : \"AniSongDB\";\n    els.manualProvider.value = PROVIDER;\n};\n\nconst setNowPlaying = (text) => {\n    els.nowPlaying.textContent = text || \"No theme selected\";\n};\n\nconst showIdle = (show) => {\n    els.idle.style.display = show ? \"\" : \"none\";\n};\n\nconst updateManualDot = () => {\n    els.manualDot.style.display = MANUAL_MATCHES[ANILIST_ID] ? \"block\" : \"none\";\n};\n\nconst setThemesLoading = (msg = \"Loading themes…\") => {\n    els.themesList.innerHTML = `<div class=\"atp-status\"><span class=\"atp-spinner\"></span>${msg}</div>`;\n};\n\nconst setThemesError = (msg) => {\n    els.themesList.innerHTML = `<div class=\"atp-status error\">${msg}</div>`;\n};\n\n// Video\nconst ensureVideo = () => {\n    if (video) return video;\n\n    video = document.createElement(\"video\");\n    video.controls = false;\n    video.volume   = currentVolume;\n    video.muted    = isMuted;\n\n    video.addEventListener(\"timeupdate\", () => {\n        if (!video.duration) return;\n        const pct = (video.currentTime / video.duration) * 100;\n        els.progressFill.style.width = pct + \"%\";\n        els.currentTime.textContent  = fmt(video.currentTime);\n    });\n\n    video.addEventListener(\"loadedmetadata\", () => {\n        els.duration.textContent = fmt(video.duration);\n    });\n\n    video.addEventListener(\"ended\", () => {\n        setPlaying(false);\n    });\n\n    video.addEventListener(\"play\",  () => setPlaying(true));\n    video.addEventListener(\"pause\", () => setPlaying(false));\n\n    els.videoWrapper.insertBefore(video, els.idle);\n    return video;\n};\n\nconst destroyVideo = () => {\n    if (!video) return;\n    video.pause();\n\n    video.removeAttribute(\"src\");\n    video.load();\n    setPlaying(false);\n    els.progressFill.style.width = \"0%\";\n    els.currentTime.textContent  = \"0:00\";\n    els.duration.textContent     = \"0:00\";\n};\n\n// Play a theme\nconst playTheme = (item, autoplay = true) => {\n    const videoUrl = item.dataset.video;\n    if (!videoUrl) return;\n\n    document.querySelectorAll(\"#anime-theme-player .theme-item\")\n        .forEach(i => i.classList.remove(\"active\"));\n    item.classList.add(\"active\");\n\n    showIdle(false);\n\n    const v = ensureVideo();\n    v.pause();\n    v.currentTime = 0;\n    v.src = videoUrl;\n\n    const type   = item.dataset.type || \"\";\n    const song   = item.dataset.song || \"\";\n    const anime  = item.dataset.anime || \"\";\n    const artist = item.querySelector(\".theme-artist\")?.textContent || \"\";\n\n    const badgeEl = document.getElementById(\"atp-song-badge\");\n    const titleEl = document.getElementById(\"atp-song-title\");\n    const artistEl = document.getElementById(\"atp-song-artist\");\n\n    if(badgeEl) badgeEl.textContent = type;\n    if(titleEl) titleEl.textContent = song;\n    if(artistEl) artistEl.textContent = artist || anime;\n\n    if (autoplay) {\n        v.play().catch(() => {});\n    }\n};\n\nconst setAudioOnly = (on) => {\n    isAudioOnly = on;\n    els.videoWrapper.classList.toggle(\"audio-only-mode\", on);\n    els.audioOnlyBtn.classList.toggle(\"active\", on);\n};\n\nconst renderThemes = (themes) => {\n    if (!themes.length) {\n        setThemesError(\"No themes found.\");\n        return;\n    }\n\n    els.themesList.innerHTML = themes.map(t => `\n      <div class=\"theme-item\"\n           data-video=\"${t.videoUrl}\"\n           data-type=\"${t.type}\"\n           data-song=\"${t.song}\"\n           data-anime=\"${t.anime}\">\n        <div class=\"theme-item-row\">\n          <span class=\"theme-type-badge\">${t.type}</span>\n          <span class=\"theme-song\">${t.song}</span>\n        </div>\n        ${t.artist ? `<div class=\"theme-artist\">${t.artist}</div>` : \"\"}\n        <div class=\"theme-actions\">\n          <button class=\"theme-action-btn btn-play-video\">▶ Video</button>\n          <button class=\"theme-action-btn btn-play-audio\">♪ Audio only</button>\n        </div>\n      </div>\n    `).join(\"\");\n\n    // Click handlers\n    els.themesList.querySelectorAll(\".theme-item\").forEach(item => {\n        item.addEventListener(\"click\", (e) => {\n            if (e.target.closest(\".theme-actions\")) return;\n            setAudioOnly(false);\n            playTheme(item, true);\n        });\n\n        item.querySelector(\".btn-play-video\").addEventListener(\"click\", (e) => {\n            e.stopPropagation();\n            setAudioOnly(false);\n            playTheme(item, true);\n        });\n\n        item.querySelector(\".btn-play-audio\").addEventListener(\"click\", (e) => {\n            e.stopPropagation();\n            setAudioOnly(true);\n            playTheme(item, true);\n        });\n    });\n\n    if (AUTOPLAY) {\n        const firstOP = els.themesList.querySelector(\".theme-item\");\n        if (firstOP) {\n            playTheme(firstOP, true);\n        }\n    }\n};\n\nconst fetchAnimeThemes = async () => {\n    const res = await fetch(\n        `https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&filter[external_id]=${ANILIST_ID}&include=animethemes.animethemeentries.videos,animethemes.song.artists`\n    );\n    if (!res.ok) throw new Error(res.statusText);\n    const data = await res.json();\n    const anime = data.anime?.[0];\n    if (!anime?.animethemes?.length) throw new Error(\"No themes found\");\n\n    return anime.animethemes\n        .map(theme => {\n            const videoUrl = theme.animethemeentries?.[0]?.videos?.[0]?.link;\n            if (!videoUrl) return null;\n            return {\n                anime: anime.name,\n                type: `${theme.type}${theme.sequence || \"\"}`,\n                song: theme.song?.title || \"Unknown\",\n                artist: theme.song?.artists?.map(a => a.name).join(\", \") || \"\",\n                videoUrl,\n            };\n        })\n        .filter(Boolean);\n};\n\nconst fetchAniSongDB = async () => {\n    const anilistId = Number(ANILIST_ID);\n\n    // AniList → MAL\n    const malResp = await fetch(\"https://graphql.anilist.co\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({\n            query: `query ($id: Int) { Media(id: $id) { idMal title { romaji english native } } }`,\n            variables: { id: anilistId },\n        }),\n    });\n    const malJson = await malResp.json();\n    const malId   = malJson.data?.Media?.idMal;\n    const title   =\n        malJson.data?.Media?.title?.romaji ||\n        malJson.data?.Media?.title?.english ||\n        malJson.data?.Media?.title?.native || \"Anime\";\n    if (!malId) throw new Error(\"AniList → MAL failed\");\n\n    // MAL → ANN (Jikan)\n    const jikan    = await fetch(`https://api.jikan.moe/v4/anime/${malId}/external`);\n    const jikanJson = await jikan.json();\n    const ann      = jikanJson.data?.find(e => e.name === \"ANN\");\n    if (!ann) throw new Error(\"MAL → ANN failed\");\n\n    const annId = Number(ann.url.match(/id=(\\d+)/)?.[1]);\n    if (!annId) throw new Error(\"ANN id missing\");\n\n    // ANN → AniSongDB\n    const songsResp = await fetch(\"https://anisongdb.com/api/annId_request\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({\n            annId,\n            ignore_duplicate: false,\n            opening_filter: true,\n            ending_filter: true,\n            insert_filter: true,\n        }),\n    });\n    const songs = await songsResp.json();\n    if (!Array.isArray(songs) || !songs.length) throw new Error(\"AniSongDB empty\");\n\n    const map = new Map();\n    songs.forEach(s => {\n        const file = s.MQ || s.HQ;\n        if (!file) return;\n        const type = s.songType\n            .replace(\"Opening\", \"OP\")\n            .replace(\"Ending\", \"ED\")\n            .replace(\"Insert Song\", \"IN\");\n        const key = `${type}-${s.songName}`;\n        if (!map.has(key)) {\n            map.set(key, {\n                anime: title,\n                type,\n                song: s.songName,\n                artist: s.songArtist,\n                videoUrl: `https://naedist.animemusicquiz.com/${file}`,\n            });\n        }\n    });\n\n    const ord = { OP: 1, ED: 2, IN: 3 };\n    return [...map.values()].sort((a, b) => {\n        const aT = a.type.match(/[A-Z]+/)[0];\n        const bT = b.type.match(/[A-Z]+/)[0];\n        const aN = parseInt(a.type.match(/\\d+/)?.[0] || \"0\");\n        const bN = parseInt(b.type.match(/\\d+/)?.[0] || \"0\");\n        return (ord[aT] - ord[bT]) || (aN - bN);\n    });\n};\n\nconst fetchAniSongDBDirect = async (query) => {\n    const res = await fetch(\"https://anisongdb.com/api/search_request\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({\n            anime_search_filter: { search: query, partial_match: true },\n            and_logic: false, ignore_duplicate: false,\n            opening_filter: true, ending_filter: true, insert_filter: true,\n            normal_broadcast: true, rebroadcast: true,\n            standard: true, instrumental: true, chanting: true, character: true,\n        }),\n    });\n    return res.json();\n};\n\nconst fetchThemes = async (providerOverride) => {\n    const provider = providerOverride || PROVIDER;\n\n    // Check manual match override\n    const manualId = MANUAL_MATCHES[ANILIST_ID];\n\n    if (manualId) {\n        setThemesLoading(\"Loading themes for manual match…\");\n        try {\n            const filtered = await fetchAniSongDBDirect(manualId);\n            if (!filtered.length) throw new Error(\"No themes for matched anime\");\n            const songMap = new Map();\n            filtered.forEach(r => {\n                const videoUrl = r.MQ || r.HQ;\n                if (!videoUrl) return;\n                const type = r.songType.replace(\"Opening\",\"OP\").replace(\"Ending\",\"ED\").replace(\"Insert Song\",\"IN\");\n                const key = `${type}-${r.songName}`;\n                if (!songMap.has(key)) {\n                    songMap.set(key, {\n                        anime: r.animeENName || r.animeJPName,\n                        type, song: r.songName, artist: r.songArtist,\n                        videoUrl: `https://naedist.animemusicquiz.com/${videoUrl}`,\n                    });\n                }\n            });\n            renderThemes([...songMap.values()]);\n            return;\n        } catch (err) {\n            console.error(\"[AnimeThemes] manual match failed:\", err);\n            // fall through to normal fetch\n        }\n    }\n\n    if (attemptedProviders.has(provider)) {\n        setThemesError(\"No themes found on any provider.\");\n        return;\n    }\n\n    attemptedProviders.add(provider);\n    setThemesLoading();\n\n    try {\n        const themes = provider === \"animethemes\"\n            ? await fetchAnimeThemes()\n            : await fetchAniSongDB();\n\n        attemptedProviders.clear();\n        renderThemes(themes);\n    } catch (err) {\n        console.error(`[AnimeThemes] failed on ${provider}:`, err);\n        const fallback = provider === \"animethemes\" ? \"anisongdb\" : \"animethemes\";\n        if (!attemptedProviders.has(fallback)) {\n            setThemesLoading(`Not found on ${provider === \"animethemes\" ? \"AnimeThemes\" : \"AniSongDB\"}, trying ${fallback}…`);\n            setTimeout(() => fetchThemes(fallback), 1000);\n        } else {\n            setThemesError(\"No themes found on AnimeThemes nor AniSongDB.\");\n        }\n    }\n};\n\nconst searchAnimeThemes = async (query) => {\n    const res = await fetch(\n        `https://api.animethemes.moe/search?q=${encodeURIComponent(query)}&include=anime.resources`\n    );\n    const data = await res.json();\n    return (data.search?.anime || []).map(a => {\n        const anilistResource = a.resources?.find(r => r.site === \"AniList\");\n        return { name: a.name, anilistId: anilistResource?.external_id || null };\n    }).filter(a => a.anilistId);\n};\n\nconst searchAniSongDBByName = async (query) => {\n    const res = await fetch(\"https://anisongdb.com/api/search_request\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({\n            anime_search_filter: { search: query, partial_match: true },\n            and_logic: false, ignore_duplicate: false,\n            opening_filter: true, ending_filter: true, insert_filter: true,\n        }),\n    });\n    const data = await res.json();\n    const seen = new Map();\n    data.forEach(r => {\n        const ids = r.linked_ids?.anilist;\n        const anilistIds = Array.isArray(ids) ? ids : (ids ? [ids] : []);\n        anilistIds.forEach(id => {\n            if (!seen.has(id)) {\n                seen.set(id, { name: r.animeENName || r.animeJPName, anilistId: id });\n            }\n        });\n    });\n    return [...seen.values()];\n};\n\nconst displayAnimeResults = (results, provider) => {\n    if (!results.length) {\n        els.animeResults.innerHTML = `<div class=\"atp-status\">No anime found</div>`;\n        els.animeResults.classList.add(\"visible\");\n        return;\n    }\n\n    els.animeResults.innerHTML = results.map(r =>\n        `<div class=\"anime-result-item\" data-anilist-id=\"${r.anilistId}\" data-name=\"${r.name}\">${r.name}</div>`\n    ).join(\"\");\n    els.animeResults.classList.add(\"visible\");\n\n    els.animeResults.querySelectorAll(\".anime-result-item\").forEach(item => {\n        item.addEventListener(\"click\", () => {\n            const name = item.dataset.name;\n            MANUAL_MATCHES[ANILIST_ID] = name;\n\n            // close manual panel\n            isManualVisible = false;\n            els.manualPanel.classList.remove(\"visible\");\n            els.animeResults.classList.remove(\"visible\");\n            els.animeResults.innerHTML = \"\";\n            els.manualBtn.classList.remove(\"active\");\n\n            updateManualDot();\n            setThemesLoading(\"Loading matched themes…\");\n            fetchThemes();\n        });\n    });\n};\n\n// play/pause\nels.playBtn.addEventListener(\"click\", () => {\n    if (!video?.src) return;\n    if (video.paused) video.play().catch(() => {});\n    else video.pause();\n});\n\n// skip\nels.skipBack.addEventListener(\"click\", () => { if (video?.src) video.currentTime = Math.max(0, video.currentTime - 10); });\nels.skipFwd.addEventListener(\"click\",  () => { if (video?.src) video.currentTime = Math.min(video.duration || 0, video.currentTime + 10); });\n\n// progress bar\nels.progressBar.addEventListener(\"click\", e => {\n    if (!video?.src) return;\n    const rect = els.progressBar.getBoundingClientRect();\n    video.currentTime = ((e.clientX - rect.left) / rect.width) * video.duration;\n});\n\n// volume\nels.volumeTrack.addEventListener(\"click\", e => {\n    const rect = els.volumeTrack.getBoundingClientRect();\n    setVolume((e.clientX - rect.left) / rect.width);\n});\n\n// mute\nels.muteBtn.addEventListener(\"click\", () => setMuted(!isMuted));\n\n// audio only\nels.audioOnlyBtn.addEventListener(\"click\", () => setAudioOnly(!isAudioOnly));\n\n// fullscreen\nels.fullscreenBtn.addEventListener(\"click\", () => {\n    if (!video) return;\n    (video.requestFullscreen || video.webkitRequestFullscreen)?.call(video);\n});\n\n// toggle list\nels.toggleListBtn.addEventListener(\"click\", () => {\n    isListVisible = !isListVisible;\n    els.themesCol.classList.toggle(\"collapsed\", !isListVisible);\n    els.toggleListBtn.classList.toggle(\"active\", isListVisible);\n});\n\n// manual match toggle\nels.manualBtn.addEventListener(\"click\", () => {\n    isManualVisible = !isManualVisible;\n    els.manualPanel.classList.toggle(\"visible\", isManualVisible);\n    els.manualBtn.classList.toggle(\"active\", isManualVisible);\n});\n\n// change provider\nels.providerBtn.addEventListener(\"click\", () => {\n    PROVIDER = PROVIDER === \"animethemes\" ? \"anisongdb\" : \"animethemes\";\n    setProviderLabel();\n    attemptedProviders.clear();\n    destroyVideo();\n    showIdle(true);\n    setNowPlaying(\"No theme selected\");\n    fetchThemes();\n});\n\nels.closeBtn.addEventListener(\"click\", () => {\n    destroyVideo();\n    var root = document.getElementById(\"anime-theme-player-root\");\n    if (root) root.style.display = \"none\";\n\n    var main = document.querySelector('[data-anime-entry-page-content-container=\"true\"]');\n    if (main) main.style.display = \"\";\n});\n\n// manual search\nels.manualSearchBtn.addEventListener(\"click\", async () => {\n    const query    = els.manualInput.value.trim();\n    const provider = els.manualProvider.value;\n    if (!query) return;\n\n    els.animeResults.innerHTML = `<div class=\"atp-status\"><span class=\"atp-spinner\"></span>Searching…</div>`;\n    els.animeResults.classList.add(\"visible\");\n\n    try {\n        const results = provider === \"animethemes\"\n            ? await searchAnimeThemes(query)\n            : await searchAniSongDBByName(query);\n        displayAnimeResults(results, provider);\n    } catch (err) {\n        els.animeResults.innerHTML = `<div class=\"atp-status error\">Search failed</div>`;\n    }\n});\n\nels.manualInput.addEventListener(\"keypress\", e => {\n    if (e.key === \"Enter\") els.manualSearchBtn.click();\n});\n\n// manual clear\nels.manualClearBtn.addEventListener(\"click\", async () => {\n    delete MANUAL_MATCHES[ANILIST_ID];\n    els.manualInput.value = \"\";\n    els.animeResults.classList.remove(\"visible\");\n    els.animeResults.innerHTML = \"\";\n    updateManualDot();\n    destroyVideo();\n    showIdle(true);\n    setNowPlaying(\"No theme selected\");\n    fetchThemes();\n    isManualVisible = false;\n    els.manualPanel.classList.remove(\"visible\");\n    els.manualBtn.classList.remove(\"active\");\n});\n\nsetVolume(INITIAL_VOLUME);\nsetProviderLabel();\nupdateManualDot();\nshowIdle(true);\nfetchThemes();";
 
-        const state = {
-            startMinimized: $storage.get(STORAGE_KEYS.START_MINIMIZED) ?? false,
-            autoplay: $storage.get(STORAGE_KEYS.AUTOPLAY) ?? true,
-            provider: $storage.get(STORAGE_KEYS.PROVIDER) ?? "animethemes",
-            volume: $storage.get(STORAGE_KEYS.VOLUME) ?? 0.7,
-            manualMatches: $storage.get(STORAGE_KEYS.MANUAL_MATCHES) ?? {},
-            isPlayerInjected: false,
-            lastAnilistId: null
-        };
+        const b64 = (s: string): string => Buffer.from(s, "utf8").toString("base64");
+
+        const getSettings = () => ({
+            autoplay:      ($storage.get(STORAGE_KEYS.AUTOPLAY)       as boolean)                ?? true,
+            provider:      ($storage.get(STORAGE_KEYS.PROVIDER)       as string)                 ?? "animethemes",
+            volume:        ($storage.get(STORAGE_KEYS.VOLUME)         as number)                 ?? 0.7,
+            manualMatches: ($storage.get(STORAGE_KEYS.MANUAL_MATCHES) as Record<string, string>) ?? {},
+        });
 
         const refs = {
-            startMinimized: ctx.fieldRef(state.startMinimized),
-            autoplay: ctx.fieldRef(state.autoplay),
-            provider: ctx.fieldRef(state.provider),
-            volume: ctx.fieldRef(state.volume)
+            autoplay: ctx.fieldRef(getSettings().autoplay),
+            provider: ctx.fieldRef(getSettings().provider),
+            volume:   ctx.fieldRef(getSettings().volume),
         };
-
-        const startMinimizedState = ctx.state(state.startMinimized);
 
         const tray = ctx.newTray({
             tooltipText: "Anime Themes",
@@ -39,758 +36,179 @@ function init() {
         });
 
         ctx.registerEventHandler("save-player-settings", () => {
-            $storage.set(STORAGE_KEYS.START_MINIMIZED, refs.startMinimized.current);
             $storage.set(STORAGE_KEYS.AUTOPLAY, refs.autoplay.current);
             $storage.set(STORAGE_KEYS.PROVIDER, refs.provider.current);
-            $storage.set(STORAGE_KEYS.VOLUME, refs.volume.current);
-            ctx.toast.success("Settings saved successfully!");
+            $storage.set(STORAGE_KEYS.VOLUME,   refs.volume.current);
+            ctx.toast.success("Settings saved!");
         });
 
         tray.render(() => {
-            const isMinimized = startMinimizedState.get();
-
             const items = [
                 tray.text("AnimeThemes Settings", {
-                    style: { fontWeight: "bold", fontSize: "14px", marginBottom: "8px" }
+                    style: { fontWeight: "bold", fontSize: "14px", marginBottom: "8px" },
                 }),
-                tray.select("Provider", {
+                tray.select("Default Provider", {
                     fieldRef: refs.provider,
                     options: [
                         { label: "AnimeThemes", value: "animethemes" },
-                        { label: "AniSongDB", value: "anisongdb" }
+                        { label: "AniSongDB",   value: "anisongdb"   },
                     ],
-                    help: "Choose the theme provider"
+                    help: "Can also be toggled inside the player",
                 }),
                 tray.select("Initial Volume", {
                     fieldRef: refs.volume,
                     options: [
-                        { label: "0%", value: 0.0 },
-                        { label: "25%", value: 0.25 },
-                        { label: "50%", value: 0.5 },
-                        { label: "75%", value: 0.75 },
-                        { label: "100%", value: 1 },
-                    ]
+                        { label: "0%",   value: 0.0  },
+                        { label: "25%",  value: 0.25 },
+                        { label: "50%",  value: 0.5  },
+                        { label: "75%",  value: 0.75 },
+                        { label: "100%", value: 1    },
+                    ],
                 }),
-                tray.switch("Start Minimized", {
-                    fieldRef: refs.startMinimized,
-                }),
-                isMinimized
-                    ? tray.text("Autoplay is disabled when starting minimized", {
-                        style: { fontSize: "11px", color: "#9ca3af", fontStyle: "italic" }
-                    })
-                    : tray.switch("Autoplay", {
-                        fieldRef: refs.autoplay,
-                    }),
-                tray.button("Save Settings", {
-                    onClick: "save-player-settings",
-                    intent: "primary-subtle"
-                })
+                tray.switch("Autoplay first OP", { fieldRef: refs.autoplay }),
+                tray.button("Save Settings", { onClick: "save-player-settings", intent: "primary-subtle" }),
             ];
-
             return tray.stack({ items, style: { gap: "12px", padding: "8px" } });
         });
 
-        const cleanupPlayer = async () => {
-            const existingPlayer = await ctx.dom.queryOne(SELECTORS.PLAYER);
-            if (existingPlayer) await existingPlayer.remove();
-            const existingScripts = await ctx.dom.query(SELECTORS.SCRIPT);
-            for (const script of existingScripts) await script.remove();
-            state.isPlayerInjected = false;
-            state.lastAnilistId = null;
+        const button = ctx.action.newAnimePageButton({
+            label: "\u200b",
+            intent: "gray-subtle",
+            style: {
+                backgroundImage: "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1tdXNpYzItaWNvbiBsdWNpZGUtbXVzaWMtMiI+PGNpcmNsZSBjeD0iOCIgY3k9IjE4IiByPSI0Ii8+PHBhdGggZD0iTTEyIDE4VjJsNyA0Ii8+PC9zdmc+)",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "21.5px 21.5px",
+                width: "40px",
+                padding: "0",
+                paddingInlineStart: "0.5rem",
+            },
+            tooltipText: "Anime Themes",
+        });
+        button.mount();
+
+        // State
+        let isOpen: boolean = false;
+        let lastInjectedId: string | null = null;
+        let currentAnilistId: string | null = null;
+        let trackedScript: any = null;
+
+        const exec = async (code: string): Promise<any> => {
+            const body = await ctx.dom.queryOne("body");
+            if (!body) return null;
+            const el = await ctx.dom.createElement("script");
+            const safeDecode = 'decodeURIComponent(escape(window.atob("' + b64(code) + '")))';
+            el.setText('eval(' + safeDecode + ')');
+
+            body.append(el);
+            return el;
         };
 
-        const getSettings = () => ({
-            startMinimized: $storage.get(STORAGE_KEYS.START_MINIMIZED) ?? false,
-            autoplay: $storage.get(STORAGE_KEYS.AUTOPLAY) ?? true,
-            provider: $storage.get(STORAGE_KEYS.PROVIDER) ?? "animethemes",
-            volume: $storage.get(STORAGE_KEYS.VOLUME) ?? 0.7,
-            manualMatches: $storage.get(STORAGE_KEYS.MANUAL_MATCHES) ?? {}
+        const run = async (code: string): Promise<void> => {
+            const el = await exec(code);
+            if (el) { try { await el.remove(); } catch (_) {} }
+        };
+
+        const injectPlayer = async (anilistId: any): Promise<void> => {
+            if (trackedScript) {
+                try { await trackedScript.remove(); } catch (_) {}
+                trackedScript = null;
+            }
+
+            const s = getSettings();
+
+            const payload =
+                "(function(){" +
+                "var ow=document.getElementById('anime-theme-player-root');" +
+                "if(ow)ow.remove();" +
+                "var os=document.querySelector('[data-anime-player=\"css\"]');" +
+                "if(os)os.remove();" +
+                "var st=document.createElement('style');" +
+                "st.setAttribute('data-anime-player','css');" +
+                "st.textContent=" + JSON.stringify(PLAYER_CSS) + ";" +
+                "document.head.appendChild(st);" +
+                "var ip=document.querySelector('[data-anime-entry-page-content-container=\"true\"]');" +
+                "if(!ip){console.error('AnimeThemes: Container not found');return;}" +
+
+                // Create wrapper
+                "var wr=document.createElement('div');" +
+                "wr.setAttribute('data-anime-player','root');" +
+                "wr.id='anime-theme-player-root';" +
+                "wr.innerHTML=" + JSON.stringify(PLAYER_HTML) + ";" +
+
+                "ip.parentNode.insertBefore(wr, ip);" +
+                "ip.style.display='none';" +
+
+                "var ANILIST_ID="     + JSON.stringify(anilistId)       + ";" +
+                "var INITIAL_VOLUME=" + s.volume                        + ";" +
+                "var AUTOPLAY="       + s.autoplay                      + ";" +
+                "var PROVIDER="       + JSON.stringify(s.provider)      + ";" +
+                "var MANUAL_MATCHES=" + JSON.stringify(s.manualMatches) + ";" +
+                PLAYER_JS_BODY +
+                "})();";
+
+            trackedScript = await exec(payload);
+            lastInjectedId = anilistId;
+        };
+
+        const setVisible = (v: boolean): Promise<void> =>
+            run(
+                "var w=document.getElementById('anime-theme-player-root');" +
+                "if(w)w.style.display='" + (v ? "block" : "none") + "';" +
+
+                "var c=document.querySelector('[data-anime-entry-page-content-container=\"true\"]');" +
+                "if(c)c.style.display='" + (v ? "none" : "") + "';" +
+
+                "var g=document.querySelector('[data-media-page-header-banner-bottom-gradient=\"true\"]');" +
+                "if(g)g.style.pointerEvents='" + (v ? "none" : "") + "';" +
+
+                (v ? "" : "var vid=document.querySelector('#anime-theme-player video');if(vid)vid.pause();")
+            );
+
+        button.onClick(async (e: { media: $app.AL_BaseAnime }) => {
+            currentAnilistId = e.media.id.toString();
+
+            if (isOpen) {
+                await setVisible(false);
+                isOpen = false;
+                return;
+            }
+
+            if (lastInjectedId !== currentAnilistId) {
+                button.setLoading(true);
+                try {
+                    await injectPlayer(currentAnilistId);
+                } finally {
+                    button.setLoading(false);
+                }
+            }
+
+            await setVisible(true);
+            isOpen = true;
         });
 
-        const createPlayerScript = (anilistId, settings) => {
-            const effectiveAutoplay = settings.startMinimized ? false : settings.autoplay;
-
-            return `
-                (function() {
-                    const ANILIST_ID = "${anilistId}";
-                    const START_MINIMIZED = ${settings.startMinimized};
-                    const AUTOPLAY = ${effectiveAutoplay};
-                    const PROVIDER = "${settings.provider}";
-                    const INITIAL_VOLUME = ${settings.volume};
-                    const MANUAL_MATCHES = ${JSON.stringify(settings.manualMatches)};
-                    const existingPlayer = document.getElementById("anime-theme-player");
-                    let attemptedProviders = new Set();
-                    if (existingPlayer) existingPlayer.remove();
-                
-                    const style = document.createElement("style");
-                    style.textContent = \`@keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } } @keyframes slideDown { from { max-height: 0; opacity: 0; } to { max-height: 180px; opacity: 1; } } @keyframes slideUp { from { max-height: 180px; opacity: 1; } to { max-height: 0; opacity: 0; } } .anime-theme-player { position: fixed; bottom: 20px; right: 20px; width: 380px; background: linear-gradient(135deg, rgba(0, 0, 0, 0.98), rgba(20, 20, 20, 0.98)); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 0; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); z-index: 40; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #fff; max-height: 700px; display: flex; flex-direction: column; animation: slideIn 0.3s ease-out; overflow: hidden; user-select: none; } .anime-theme-player.minimized { width: 200px; height: 50px; padding: 0; cursor: pointer; border-radius: 12px; animation: none; } .anime-theme-player.dragging { cursor: grabbing; transition: none; } .player-header-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.1); cursor: move; user-select: none; } .player-title { font-size: 15px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px; user-select: none; } .header-controls { display: flex; gap: 8px; } .header-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; user-select: none; } .header-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); border-color: rgba(255, 255, 255, 0.3); } .restore-btn { width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); color: white; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 700; display: none; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; user-select: none; } .restore-btn:hover { background: rgba(0, 0, 0, 0.6); border-color: rgba(255, 255, 255, 0.3); } .anime-theme-player.minimized .restore-btn { display: flex; } .anime-theme-player.minimized .player-content { display: none; } .player-content { display: flex; flex-direction: column; height: 100%; overflow: hidden; } .themes-list { max-height: 180px; overflow-y: auto; padding: 10px; background: rgba(0, 0, 0, 0.2); user-select: none; transition: all 0.3s ease; } .themes-list.hidden { max-height: 0; padding: 0; opacity: 0; overflow: hidden; } .themes-list::-webkit-scrollbar { width: 6px; } .themes-list::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 3px; } .themes-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; } .themes-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); } .theme-item { padding: 10px; background: rgba(20, 20, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; font-size: 12px; user-select: none; } .theme-item:hover { background: rgba(40, 40, 40, 0.8); border-color: rgba(255, 255, 255, 0.2); transform: translateX(4px); } .theme-item.active { background: rgba(60, 60, 60, 0.8); border-color: rgba(255, 255, 255, 0.4); border-left: 4px solid #ffffff; } .theme-type { color: #ffffff; font-weight: 700; font-size: 10px; margin-right: 6px; padding: 2px 6px; background: rgba(255, 255, 255, 0.15); border-radius: 4px; display: inline-block; user-select: none; } .video-container { width: 100%; height: 220px; background: rgba(0, 0, 0, 0.8); overflow: hidden; display: none; align-items: center; justify-content: center; position: relative; } .video-container.active { display: flex; } .video-container.hidden-video { height: 0; min-height: 0; } .video-container.hidden-video video { display: none; } .video-container video { width: 100%; height: 100%; object-fit: contain; } .video-placeholder { color: #9ca3af; font-size: 13px; text-align: center; animation: pulse 2s infinite; user-select: none; } .video-controls-overlay {position: relative;background: rgba(0, 0, 0, 0.6);padding: 12px;border-top: 1px solid rgba(255, 255, 255, 0.1);opacity: 1;pointer-events: all;}.video-container:hover .video-controls-overlay { opacity: 1; pointer-events: all; } .video-container.hidden-video .video-controls-overlay { opacity: 1; pointer-events: all; background: rgba(0, 0, 0, 0.9); position: relative; padding: 14px; } .progress-container { margin-bottom: 10px; } .progress-bar { height: 6px; background: rgba(255, 255, 255, 0.3); border-radius: 2px; position: relative; cursor: pointer; overflow: hidden; } .progress-fill { height: 100%; background: #ffffff; border-radius: 2px; transition: width 0.1s; position: relative; } .progress-fill::after { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); opacity: 0; } .progress-bar:hover .progress-fill::after { opacity: 1; } .time-display { display: flex; justify-content: space-between; font-size: 10px; color: #e5e7eb; margin-top: 4px; user-select: none; } .controls-row { display: flex; align-items: center; gap: 6px; } .control-btn { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 12px; font-weight: bold; user-select: none; } .control-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); border-color: rgba(255, 255, 255, 0.4); } .control-btn.play-btn { width: 34px; height: 34px; background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.4); } .volume-section {display: flex;align-items: center;gap: 6px;flex: 0 0 60px;} .volume-control {flex: 0 0 60px;height: 6px;background: rgba(255, 255, 255, 0.3);border-radius: 2px;position: relative;cursor: pointer;} .volume-bar {height: 100%;background: #ffffff;border-radius: 2px;transition: width 0.1s;} .fullscreen-btn {position: absolute;top: 10px;right: 10px;background: rgba(0, 0, 0, 0.7);border: 1px solid rgba(255, 255, 255, 0.3);color: white;width: 32px;height: 32px;border-radius: 6px;cursor: pointer;display: flex;align-items: center;justify-content: center;font-size: 14px;transition: all 0.2s;opacity: 0;user-select: none;} .video-container:hover .fullscreen-btn { opacity: 1; } .video-container.hidden-video .fullscreen-btn { display: none; } .fullscreen-btn:hover { background: rgba(0, 0, 0, 0.9); transform: scale(1.05); } .toggle-list-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; user-select: none; } .toggle-list-btn.visible { display: flex; } .toggle-list-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); border-color: rgba(255, 255, 255, 0.3); } .hide-video-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; user-select: none; } .hide-video-btn.visible { display: flex; } .hide-video-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); border-color: rgba(255, 255, 255, 0.3); } .loading { text-align: center; color: #9ca3af; font-size: 12px; padding: 16px; user-select: none; } .error { color: #ef4444; font-size: 11px; padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; margin: 10px; user-select: none; }.manual-match-section {padding: 12px;background: rgba(0, 0, 0, 0.3);border-top: 1px solid rgba(255, 255, 255, 0.1);display: none;}.manual-match-section.visible {display: block;}.manual-match-form {display: flex;flex-direction: column;gap: 8px;}.manual-match-input {background: rgba(255, 255, 255, 0.1);border: 1px solid rgba(255, 255, 255, 0.2);border-radius: 6px;padding: 8px;color: white;font-size: 12px;outline: none;}.manual-match-input:focus {border-color: rgba(255, 255, 255, 0.4);background: rgba(255, 255, 255, 0.15);}.manual-match-input::placeholder {color: rgba(255, 255, 255, 0.5);}.manual-match-buttons {display: flex;gap: 8px;}.manual-match-btn {flex: 1;background: rgba(255, 255, 255, 0.15);border: 1px solid rgba(255, 255, 255, 0.3);color: white;padding: 8px;border-radius: 6px;cursor: pointer;font-size: 12px;font-weight: 600;transition: all 0.2s;}.manual-match-btn:hover {background: rgba(255, 255, 255, 0.2);border-color: rgba(255, 255, 255, 0.4);}.manual-match-btn.clear {background: rgba(239, 68, 68, 0.2);border-color: rgba(239, 68, 68, 0.4); }.manual-match-btn.clear:hover { background: rgba(239, 68, 68, 0.3); }.manual-match-select {background: rgba(255, 255, 255, 0.1);border: 1px solid rgba(255, 255, 255, 0.2);border-radius: 6px;padding: 8px;color: white;font-size: 12px;outline: none;cursor: pointer;}.manual-match-select:focus {border-color: rgba(255, 255, 255, 0.4);background: rgba(255, 255, 255, 0.15);}.manual-match-select option {background: #1a1a1a;color: white;}.manual-match-indicator {background: rgba(34, 197, 94, 0.2);border: 1px solid rgba(34, 197, 94, 0.4);color: #4ade80;padding: 4px 8px;border-radius: 4px;font-size: 10px;font-weight: 600;margin-left: 8px;}.anime-results-list {max-height: 200px;overflow-y: auto;margin-top: 8px;display: none;}.anime-results-list.visible {display: block;}.anime-result-item {padding: 10px;background: rgba(20, 20, 20, 0.6);border: 1px solid rgba(255, 255, 255, 0.1);border-radius: 6px;margin-bottom: 6px;cursor: pointer;transition: all 0.2s;font-size: 12px;}.anime-result-item:hover {background: rgba(40, 40, 40, 0.8);border-color: rgba(255, 255, 255, 0.2);transform: translateX(4px);}.anime-result-title {font-weight: 600;color: #ffffff;margin-bottom: 4px;}.anime-result-meta {font-size: 10px;color: #9ca3af;}.anime-results-list::-webkit-scrollbar {width: 6px;}.anime-results-list::-webkit-scrollbar-track {background: rgba(0, 0, 0, 0.3);border-radius: 3px;}.anime-results-list::-webkit-scrollbar-thumb {background: rgba(255, 255, 255, 0.3);border-radius: 3px;}\`;
-                    document.head.appendChild(style);
-                
-                    const player = document.createElement("div");
-                    player.className = START_MINIMIZED ? "anime-theme-player minimized" : "anime-theme-player";
-                    player.id = "anime-theme-player";
-                
-                    player.innerHTML = \`<button class="restore-btn" id="restore-btn">♪ Anime Themes</button> <div class="player-content"> <div class="player-header-bar"> <div class="player-title"> <span>♪</span> <span id="anime-title">Anime Themes</span> <span class="manual-match-indicator" id="manual-match-indicator" style="display: none;">Manual</span> </div> <div class="header-controls"> <button class="header-btn" id="manual-match-btn" title="Manual Match">🔧</button> <button class="header-btn hide-video-btn" id="hide-video-btn" title="Ocultar/Mostrar video">👁</button> <button class="header-btn toggle-list-btn" id="toggle-list-btn" title="Ocultar/Mostrar lista">☰</button> <button class="header-btn" id="minimize-btn" title="Minimize">−</button> </div> </div> <div class="manual-match-section" id="manual-match-section"> <div class="manual-match-form"> <input type="text" class="manual-match-input" id="manual-search-input" placeholder="Search anime by title..."> <select class="manual-match-select" id="manual-provider-select"> <option value="anisongdb">AniSongDB</option> </select> <div class="manual-match-buttons"> <button class="manual-match-btn" id="manual-search-btn">Search Anime</button> <button class="manual-match-btn clear" id="manual-clear-btn">Clear Match</button> </div> <div class="anime-results-list" id="anime-results-list"></div> </div> </div> <div class="themes-list" id="themes-list"> <div class="loading">Loading...</div> </div> <div class="video-container" id="video-container"> <button class="fullscreen-btn" id="fullscreen-btn" title="Fullscreen">⛶</button> </div> <div class="video-controls-overlay" id="video-controls"> <div class="progress-container"> <div class="progress-bar" id="progress-bar"> <div class="progress-fill" id="progress-fill"></div> </div> <div class="time-display"> <span id="current-time">0:00</span> <span id="duration">0:00</span> </div> </div> <div class="controls-row"> <button class="control-btn" id="skip-back-btn" title="10s">⏪</button> <button class="control-btn play-btn" id="play-btn" title="Play/Pause">▶</button> <button class="control-btn" id="skip-forward-btn" title="10s">⏩</button> <div class="volume-section"> <button class="control-btn" id="mute-btn" title="Mute">🔇</button> <div class="volume-control" id="volume-control"> <div class="volume-bar" id="volume-bar"></div> </div> </div> </div> </div> </div>\`;
-
-                    document.body.appendChild(player);
-                
-                    const els = {
-                        themesList: document.getElementById("themes-list"),
-                        videoContainer: document.getElementById("video-container"),
-                        playBtn: document.getElementById("play-btn"),
-                        skipBackBtn: document.getElementById("skip-back-btn"),
-                        skipForwardBtn: document.getElementById("skip-forward-btn"),
-                        volumeControl: document.getElementById("volume-control"),
-                        volumeBar: document.getElementById("volume-bar"),
-                        muteBtn: document.getElementById("mute-btn"),
-                        minimizeBtn: document.getElementById("minimize-btn"),
-                        restoreBtn: document.getElementById("restore-btn"),
-                        progressBar: document.getElementById("progress-bar"),
-                        progressFill: document.getElementById("progress-fill"),
-                        currentTime: document.getElementById("current-time"),
-                        duration: document.getElementById("duration"),
-                        fullscreenBtn: document.getElementById("fullscreen-btn"),
-                        headerBar: document.querySelector(".player-header-bar"),
-                        animeTitle: document.getElementById("anime-title"),
-                        toggleListBtn: document.getElementById("toggle-list-btn"),
-                        hideVideoBtn: document.getElementById("hide-video-btn"),
-                        manualMatchBtn: document.getElementById("manual-match-btn"),
-                        manualMatchSection: document.getElementById("manual-match-section"),
-                        manualSearchInput: document.getElementById("manual-search-input"),
-                        manualProviderSelect: document.getElementById("manual-provider-select"),
-                        manualSearchBtn: document.getElementById("manual-search-btn"),
-                        manualClearBtn: document.getElementById("manual-clear-btn"),
-                        manualMatchIndicator: document.getElementById("manual-match-indicator"),
-                        animeResultsList: document.getElementById("anime-results-list")
-                    };
-                
-                    let video = null;
-                    let currentVolume = INITIAL_VOLUME;
-                    const playerState = {
-                        isMuted: false,
-                        isDragging: false,
-                        dragOffset: { x: 0, y: 0 },
-                        isListVisible: true,
-                        isVideoVisible: true,
-                        animeTitle: "",
-                        isManualMatchVisible: false
-                    };
-                
-                    const formatTime = (seconds) => {
-                        if (isNaN(seconds)) return "0:00";
-                        const mins = Math.floor(seconds / 60);
-                        const secs = Math.floor(seconds % 60);
-                        return \`\${mins}:\${secs.toString().padStart(2, '0')}\`;
-                    };
-                
-                    const showError = (message, fallbackProvider = null) => {
-                        els.themesList.innerHTML = \`<div class="error">\${message}</div>\`;
-                        if (fallbackProvider) { setTimeout(() => fetchThemes(fallbackProvider), 1200); }
-                    };
-                
-                    const updateManualMatchIndicator = () => {
-                        if (MANUAL_MATCHES[ANILIST_ID]) { els.manualMatchIndicator.style.display = 'inline-block' } 
-                        else { els.manualMatchIndicator.style.display = 'none' }
-                    };
-                
-                    // Drag functionality
-                    const setupDragHandlers = () => {
-                        els.headerBar.addEventListener("mousedown", (e) => {
-                            playerState.isDragging = true;
-                            player.classList.add("dragging");
-                            const rect = player.getBoundingClientRect();
-                            playerState.dragOffset = {
-                                x: e.clientX - rect.left,
-                                y: e.clientY - rect.top
-                            };
-                        });
-                
-                        document.addEventListener("mousemove", (e) => {
-                            if (!playerState.isDragging) return;
-                            let newX = Math.max(0, Math.min(e.clientX - playerState.dragOffset.x, window.innerWidth - player.offsetWidth));
-                            let newY = Math.max(0, Math.min(e.clientY - playerState.dragOffset.y, window.innerHeight - player.offsetHeight));
-                            player.style.left = newX + "px";
-                            player.style.top = newY + "px";
-                            player.style.right = "auto";
-                            player.style.bottom = "auto";
-                        });
-                
-                        document.addEventListener("mouseup", () => {
-                            if (!playerState.isDragging) { return }
-                            playerState.isDragging = false;
-                            player.classList.remove("dragging");
-                        });
-                    };
-                    const searchAnimeThemes = async (query) => {
-                        const res = await fetch(\`https://api.animethemes.moe/search?q=\${encodeURIComponent(query)}&include=anime.resources\`);
-                        const data = await res.json();
-                        
-                        return data.search?.anime?.map(anime => {
-                            const anilistResource = anime.resources?.find(r => r.site === "AniList");
-                            return {
-                                name: anime.name,
-                                year: anime.year,
-                                season: anime.season,
-                                anilistId: anilistResource?.external_id || null
-                            };
-                        }).filter(a => a.anilistId) || [];
-                    };
-                
-                    const searchAniSongDB = async (query) => {
-                        const res = await fetch("https://anisongdb.com/api/search_request", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                anime_search_filter: { search: query, partial_match: true },
-                                and_logic: false,
-                                ignore_duplicate: false,
-                                opening_filter: true,
-                                ending_filter: true,
-                                insert_filter: true
-                            })
-                        });
-                        const data = await res.json();
-                        
-                        const animeMap = new Map();
-                        data.forEach(r => {
-                            const ids = r.linked_ids?.anilist;
-                            const anilistIds = Array.isArray(ids) ? ids : (ids ? [ids] : []);
-                            
-                            anilistIds.forEach(id => {
-                                if (!animeMap.has(id)) {
-                                    animeMap.set(id, {
-                                        name: r.animeENName || r.animeJPName,
-                                        anilistId: id
-                                    });
-                                }
-                            });
-                        });
-                        
-                        return Array.from(animeMap.values());
-                    };
-                
-                    const displayAnimeResults = (results, provider) => {
-                        if (!results.length) {
-                            els.animeResultsList.innerHTML = '<div class="error">No anime found</div>';
-                            els.animeResultsList.classList.add("visible");
-                            return;
-                        }
-                
-                        const html = results.map(anime => \`
-                            <div class="anime-result-item" data-anilist-id="\${anime.anilistId}" data-provider="\${provider}" data-anime-name="\${anime.name.replace(/"/g, '&quot;')}"">
-                                <div class="anime-result-title">\${anime.name}</div>
-                                <div class="anime-result-meta">
-                                    AniList ID: \${anime.anilistId}
-                                    \${anime.year ? \` • \${anime.season || ''} \${anime.year}\` : ''}
-                                </div>
-                            </div>
-                        \`).join('');
-                
-                        els.animeResultsList.innerHTML = html;
-                        els.animeResultsList.classList.add("visible");
-                        els.animeResultsList.querySelectorAll('.anime-result-item').forEach(item => {
-                            item.addEventListener('click', async () => {
-                                const targetName = item.getAttribute('data-anime-name');
-                                const targetId = item.getAttribute('data-anilist-id');
-                                updateManualMatchIndicator();
-                                
-                                playerState.isManualMatchVisible = false;
-                                els.manualMatchSection.classList.remove("visible");
-                                els.animeResultsList.classList.remove("visible");
-                                els.animeResultsList.innerHTML = '';
-                                els.themesList.classList.remove("hidden");
-                                
-                                els.themesList.innerHTML = '<div class="loading">Loading themes...</div>';
-                                await fetchThemesByName(targetId, targetName);
-                            });
-                        });
-                    };
-                
-                    const fetchAnimeThemes = async () => {
-                        const res = await fetch(\`https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&filter[external_id]=\${ANILIST_ID}&include=animethemes.animethemeentries.videos,animethemes.song.artists\`);
-                        const data = await res.json();
-                        const anime = data.anime?.[0];
-                
-                        if (!anime || !anime.animethemes?.length) { throw new Error("No themes found") }
-                        playerState.animeTitle = anime.name;
-                        if (els.animeTitle) els.animeTitle.textContent = anime.name;
-                
-                        return anime.animethemes
-                            .map(theme => {
-                                const videoUrl = theme.animethemeentries?.[0]?.videos?.[0]?.link;
-                                if (!videoUrl) return null;
-                
-                                return {
-                                    anime: anime.name,
-                                    type: \`\${theme.type}\${theme.sequence || ""}\`,
-                                    song: theme.song?.title || "Unknown",
-                                    artist: theme.song?.artists?.map(a => a.name).join(", ") || "",
-                                    videoUrl
-                                };
-                            })
-                            .filter(Boolean);
-                    };
-                
-                    const fetchThemesByName = async (anilistId, name) => {
-                        try {
-                            let themes;
-                            let results = await searchAniSongDBDirect(name);
-            
-                            const parsedId = Number(anilistId);
-                            const hasCurrentId = results?.some(r => {
-                                const ids = r.linked_ids?.anilist;
-                                return Array.isArray(ids) ? ids.includes(parsedId) : ids === parsedId;
-                            });
-                    
-                            if (!results?.length || !hasCurrentId) {
-                                throw new Error("No themes found");
-                            }
-                    
-                            if (els.animeTitle) els.animeTitle.textContent = name;
-                    
-                            const filtered = results.filter(r => {
-                                const ids = r.linked_ids?.anilist;
-                                return Array.isArray(ids) ? ids.includes(parsedId) : ids === parsedId;
-                            });
-                    
-                            const songMap = new Map();
-                            filtered.forEach(r => {
-                                const videoUrl = r.MQ || r.HQ;
-                                if (!videoUrl) return;
-                    
-                                const type = r.songType
-                                    .replace("Opening", "OP")
-                                    .replace("Ending", "ED")
-                                    .replace("Insert Song", "IN");
-                                const key = \`\${type}-\${r.songName}\`;
-                    
-                                if (!songMap.has(key)) {
-                                    songMap.set(key, {
-                                        anime: r.animeENName || r.animeJPName,
-                                        type,
-                                        song: r.songName,
-                                        artist: r.songArtist,
-                                        videoUrl: \`https://naedist.animemusicquiz.com/\${videoUrl}\`
-                                    });
-                                }
-                            });
-                    
-                            themes =  Array.from(songMap.values()).sort((a, b) => {
-                                const order = { OP: 1, ED: 2, IN: 3 };
-                                const typeA = a.type.match(/[A-Z]+/)[0];
-                                const typeB = b.type.match(/[A-Z]+/)[0];
-                                const numA = parseInt(a.type.match(/\\d+/)?.[0] || "0");
-                                const numB = parseInt(b.type.match(/\\d+/)?.[0] || "0");
-                                return (order[typeA] - order[typeB]) || (numA - numB);
-                            });
-                
-                            renderThemes(themes);
-                        } catch (err) {
-                            console.error("Failed to fetch themes:", err);
-                            showError("Failed to load themes for selected anime");
-                        }
-                    };
-                
-                    const searchAniSongDBDirect = async (searchTerm) => {
-                        const res = await fetch("https://anisongdb.com/api/search_request", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({anime_search_filter: { search: searchTerm, partial_match: true },and_logic: false,ignore_duplicate: false,opening_filter: true,ending_filter: true,insert_filter: true,normal_broadcast: true,rebroadcast: true,standard: true,instrumental: true,chanting: true,character: true})
-                        });
-                        return res.json();
-                    };
-                
-                    const fetchAniSongDB = async () => {
-                        const anilistId = Number(ANILIST_ID);
-                    
-                        // 1) AniList → MAL
-                        const malResp = await fetch("https://graphql.anilist.co", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                query: \`
-                                    query ($id: Int) {
-                                        Media(id: $id) {
-                                            idMal
-                                            title { romaji english native }
-                                        }
-                                    }\`,
-                                variables: { id: anilistId }
-                            })
-                        });
-                    
-                        const malJson = await malResp.json();
-                        const malId = malJson.data?.Media?.idMal;
-                        const animeTitle =
-                            malJson.data?.Media?.title?.romaji ||
-                            malJson.data?.Media?.title?.english ||
-                            malJson.data?.Media?.title?.native ||
-                            "Anime Themes";
-                    
-                        if (!malId) throw new Error("AniList → MAL failed");
-                    
-                        // 2) MAL → ANN (via Jikan)
-                        const jikan = await fetch(\`https://api.jikan.moe/v4/anime/\${malId}/external\`);
-                        const jikanJson = await jikan.json();
-                    
-                        const ann = jikanJson.data?.find(e => e.name === "ANN");
-                        if (!ann) throw new Error("MAL → ANN failed");
-                    
-                        const annId = Number(ann.url.match(/id=(\\d+)/)?.[1]);
-                        if (!annId) throw new Error("ANN id missing");
-                    
-                        // 3) ANN → AniSongDB
-                        const songsResp = await fetch("https://anisongdb.com/api/annId_request", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                annId: annId,
-                                ignore_duplicate: false,
-                                opening_filter: true,
-                                ending_filter: true,
-                                insert_filter: true
-                            })
-                        });
-                    
-                        const songs = await songsResp.json();
-                        if (!Array.isArray(songs) || !songs.length) throw new Error("AniSongDB empty");
-                    
-                        if (els.animeTitle) els.animeTitle.textContent = animeTitle;
-                    
-                        const map = new Map();
-                        songs.forEach(s => {
-                            const file = s.MQ || s.HQ;
-                            if (!file) return;
-                    
-                            const type = s.songType
-                                .replace("Opening", "OP")
-                                .replace("Ending", "ED")
-                                .replace("Insert Song", "IN");
-                    
-                            const key = \`\${type}-\${s.songName}\`;
-                    
-                            if (!map.has(key)) {
-                                map.set(key, {
-                                    anime: animeTitle,
-                                    type,
-                                    song: s.songName,
-                                    artist: s.songArtist,
-                                    videoUrl: \`https://naedist.animemusicquiz.com/\${file}\`
-                                });
-                            }
-                        });
-                    
-                        return [...map.values()].sort((a, b) => {
-                            const ord = { OP: 1, ED: 2, IN: 3 };
-                            const aT = a.type.match(/[A-Z]+/)[0];
-                            const bT = b.type.match(/[A-Z]+/)[0];
-                            const aN = parseInt(a.type.match(/\\d+/)?.[0] || "0");
-                            const bN = parseInt(b.type.match(/\\d+/)?.[0] || "0");
-                            return ord[aT] - ord[bT] || aN - bN;
-                        });
-                    };
-                
-                    const fetchThemes = async (providerOverride) => {
-                        const provider = providerOverride || PROVIDER;
-                        if (attemptedProviders.has(provider)) {
-                            showError(\`No themes found on any provider\`);
-                            return;
-                        }
-                        attemptedProviders.add(provider);
-                        try {
-                            const themes = provider === "animethemes" ? await fetchAnimeThemes() : await fetchAniSongDB();
-                    
-                            attemptedProviders.clear();
-                            renderThemes(themes);
-                        } catch (err) {
-                            console.error(\`Failed on \${provider}:\`, err);
-                    
-                            const fallback = provider === "animethemes" ? "anisongdb" : "animethemes";
-                            if (!attemptedProviders.has(fallback)) { showError(\`Not found on \${provider === "animethemes" ? "AnimeThemes" : "AniSongDB"}, trying \${fallback}...\`, fallback);} 
-                            else { showError(\`No themes found on AnimeThemes.moe nor AniSongDB\`); }
-                        }
-                    };
-                
-                    const renderThemes = (themes) => {
-                        if (!themes.length) {
-                            els.themesList.innerHTML = '<div class="error">No themes</div>';
-                            return;
-                        }
-                
-                        const html = themes
-                            .map(t => \`
-                                <div class="theme-item" 
-                                     data-anime="\${t.anime}" 
-                                     data-type="\${t.type}" 
-                                     data-song="\${t.song}" 
-                                     data-video="\${t.videoUrl}">
-                                    <span class="theme-type">\${t.type}</span>
-                                    <span>\${t.song}</span>
-                                    \${t.artist ? \`<div class="artist">\${t.artist}</div>\` : ""}
-                                </div>
-                            \`)
-                            .join("");
-                
-                        els.themesList.innerHTML = html;
-                        setupThemeClickHandlers();
-                    };
-                
-                    const createVideo = () => {
-                        video = document.createElement("video");
-                        video.controls = false;
-                        video.volume = currentVolume;
-                        els.videoContainer.insertBefore(video, els.videoContainer.firstChild);
-                
-                        video.addEventListener("timeupdate", () => {
-                            const progress = (video.currentTime / video.duration) * 100;
-                            els.progressFill.style.width = progress + "%";
-                            els.currentTime.textContent = formatTime(video.currentTime);
-                        });
-                        
-                        video.addEventListener("loadedmetadata", () => { els.duration.textContent = formatTime(video.duration) });
-                        video.addEventListener("ended", () => { els.playBtn.textContent = "▶" });
-                
-                        return video;
-                    };
-                
-                    const playTheme = (item, shouldAutoplay) => {
-                        const videoLink = item.getAttribute("data-video");
-                        if (!videoLink) return;
-                        const animeName = item.getAttribute("data-anime");
-                        const songName = item.getAttribute("data-song");
-                
-                        document.querySelectorAll(".theme-item").forEach(i => i.classList.remove("active"));
-                        item.classList.add("active");
-                        els.videoContainer.classList.add("active");
-                        els.toggleListBtn.classList.add("visible");
-                        els.hideVideoBtn.classList.add("visible");
-                        if (els.animeTitle) { els.animeTitle.textContent = \`\${animeName} - \${songName}\` }
-                
-                        if (!video) { createVideo() } 
-                        else {
-                            video.pause();
-                            video.currentTime = 0;
-                        }
-                        video.src = videoLink;
-                
-                        if (shouldAutoplay) {
-                            video.play();
-                            els.playBtn.textContent = "⏸";
-                        } 
-                        else { els.playBtn.textContent = "▶"; }
-                    };
-                
-                    const setupThemeClickHandlers = () => {
-                        const themeItems = els.themesList.querySelectorAll(".theme-item");
-                        themeItems.forEach(item => {
-                            item.addEventListener("click", () => playTheme(item, true));
-                        });
-                
-                        if (AUTOPLAY && themeItems.length > 0) {
-                            const firstOP = Array.from(themeItems).find(item => {
-                                const type = item.getAttribute("data-type");
-                                return type?.startsWith("OP");
-                            });
-                
-                            if (!firstOP) { return }
-                            els.themesList.classList.add("hidden");
-                            playerState.isListVisible = false;
-                            playTheme(firstOP, true);
-                        }
-                    };
-                
-                    // Manual match handlers
-                    const setupManualMatchHandlers = () => {
-                        els.manualMatchBtn.addEventListener("click", () => {
-                            playerState.isManualMatchVisible = !playerState.isManualMatchVisible;
-                            if (playerState.isManualMatchVisible) {
-                                els.manualMatchSection.classList.add("visible");
-                                els.themesList.classList.add("hidden");
-                                playerState.isListVisible = false;
-                            } else {
-                                els.manualMatchSection.classList.remove("visible");
-                                els.animeResultsList.classList.remove("visible");
-                                els.animeResultsList.innerHTML = '';
-                                els.themesList.classList.remove("hidden");
-                            }
-                        });
-                    
-                        els.manualSearchBtn.addEventListener("click", async () => {
-                            const query = els.manualSearchInput.value.trim();
-                            const provider = els.manualProviderSelect.value;
-                    
-                            if (!query) {
-                                alert("Please enter a search query");
-                                return;
-                            }
-                            els.animeResultsList.innerHTML = '<div class="loading">Searching anime...</div>';
-                            els.animeResultsList.classList.add("visible");
-                            
-                            try {
-                                const results = provider === "animethemes" ? await searchAnimeThemes(query) : await searchAniSongDB(query);
-                                displayAnimeResults(results, provider);
-                            } catch (err) {
-                                console.error("Anime search failed:", err);
-                                els.animeResultsList.innerHTML = '<div class="error">Search failed</div>';
-                            }
-                        });
-                    
-                        els.manualClearBtn.addEventListener("click", async () => {
-                            els.manualSearchInput.value = "";
-                            els.animeResultsList.classList.remove("visible");
-                            els.animeResultsList.innerHTML = '';
-                            
-                            if (video) {
-                                video.pause();
-                                video.removeAttribute("src");
-                                video.load();
-                                video = null;
-                            }
-                            
-                            els.videoContainer.classList.remove("active");
-                            els.hideVideoBtn.classList.remove("visible");
-                            els.toggleListBtn.classList.remove("visible");
-                            els.progressFill.style.width = "0%";
-                            els.currentTime.textContent = "0:00";
-                            els.duration.textContent = "0:00";
-                            els.playBtn.textContent = "▶";
-                    
-                            document.querySelectorAll(".theme-item").forEach(i => i.classList.remove("active"));
-                    
-                            els.themesList.innerHTML = '<div class="loading">Reloading themes...</div>';
-                            els.themesList.classList.remove("hidden");
-                            playerState.isListVisible = true;
-                    
-                            await fetchThemes();
-                            playerState.isManualMatchVisible = false;
-                            els.manualMatchSection.classList.remove("visible");
-                            els.manualMatchIndicator.style.display = 'none';
-                        });
-                    
-                        els.manualSearchInput.addEventListener("keypress", (e) => {
-                            if (e.key === "Enter") { els.manualSearchBtn.click() }
-                        });
-                    };
-                    const setupControls = () => {
-                        els.playBtn.addEventListener("click", () => {
-                            if (video?.src) {
-                                if (video.paused) {
-                                    playerState.isVideoVisible = true;
-                                    video.play();
-                                    els.playBtn.textContent = "⏸";
-                                } else {
-                                    video.pause();
-                                    els.playBtn.textContent = "▶";
-                                }
-                            }
-                        });
-                
-                        els.skipBackBtn.addEventListener("click", () => { if (video?.src) video.currentTime = Math.max(0, video.currentTime - 10) });
-                
-                        els.skipForwardBtn.addEventListener("click", () => { if (video?.src) video.currentTime = Math.min(video.duration, video.currentTime + 10) });
-                
-                        els.progressBar.addEventListener("click", (e) => {
-                            if (video?.src) {
-                                const rect = els.progressBar.getBoundingClientRect();
-                                const percentage = (e.clientX - rect.left) / rect.width;
-                                video.currentTime = percentage * video.duration;
-                            }
-                        });
-                
-                        els.volumeControl.addEventListener("click", (e) => {
-                            const rect = els.volumeControl.getBoundingClientRect();
-                            const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                
-                            currentVolume = percentage;
-                            if (!video) { return }
-                            
-                            video.volume = currentVolume;
-                            if (currentVolume > 0) {
-                                playerState.isMuted = false;
-                                els.muteBtn.textContent = currentVolume > 0.5 ? "🔊" : "🔉";
-                            }
-                            els.volumeBar.style.width = \`\${percentage * 100}%\`;
-                        });
-                
-                        els.muteBtn.addEventListener("click", () => {
-                            if (!video) { return }
-                            playerState.isMuted = !playerState.isMuted;
-                            video.muted = playerState.isMuted;
-                            els.muteBtn.textContent = playerState.isMuted ? "🔇" : "🔊";
-                        });
-                
-                        els.fullscreenBtn.addEventListener("click", () => {
-                            if (!video) { return }
-                            if (video.requestFullscreen) { video.requestFullscreen() } 
-                            else if (video.webkitRequestFullscreen) { video.webkitRequestFullscreen();}
-                        });
-                
-                        els.toggleListBtn.addEventListener("click", () => {
-                            playerState.isListVisible = !playerState.isListVisible;
-                            els.themesList.classList.toggle("hidden", !playerState.isListVisible);
-                        });
-                
-                        els.hideVideoBtn.addEventListener("click", () => {
-                            playerState.isVideoVisible = !playerState.isVideoVisible;
-                            els.videoContainer.classList.toggle("hidden-video", !playerState.isVideoVisible);
-                        });
-                
-                        els.minimizeBtn.addEventListener("click", () => {
-                            player.classList.add("minimized");
-                            player.style.cssText = "";
-                            if (video && !video.paused) {
-                                video.pause();
-                                els.playBtn.textContent = "▶";
-                            }
-                        });
-                
-                        els.restoreBtn.addEventListener("click", () => { player.classList.remove("minimized") });
-                    };
-                    setupDragHandlers();
-                    setupControls();
-                    setupManualMatchHandlers();
-                    updateManualMatchIndicator();
-                    fetchThemes()
-                    
-                    els.volumeBar.style.width = \`\${INITIAL_VOLUME * 100}%\`;
-                })();
-            `;
-        };
-
-        ctx.dom.onReady(async () => {
-            ctx.screen.onNavigate(async (e) => {
-                const isEntry = e.pathname === "/entry";
-                if (!isEntry) {
-                    await cleanupPlayer();
+        ctx.dom.onReady(() => {
+            ctx.screen.onNavigate(async (e: any) => {
+                if (e.pathname !== "/entry") {
+                    if (trackedScript) {
+                        try { await trackedScript.remove(); } catch (_) {}
+                        trackedScript = null;
+                    }
+                    await run(
+                        "var w=document.getElementById('anime-theme-player-root');if(w)w.remove();" +
+                        "var c=document.querySelector('[data-anime-player=\"css\"]');if(c)c.remove();" +
+                        "var m=document.querySelector('[data-anime-entry-page-content-container=\"true\"]');if(m)m.style.display='';"
+                    );
+                    isOpen = false;
+                    lastInjectedId = null;
+                    currentAnilistId = null;
                     return;
                 }
-                const anilistId = e.searchParams?.id;
-                if (!anilistId) return;
-
-                if (state.isPlayerInjected && anilistId === state.lastAnilistId) {
-                    console.log("Anime Player already injected, skipping...");
-                    return;
-                }
-                state.isPlayerInjected = true;
-                state.lastAnilistId = anilistId;
-
-                try {
-                    const body = await ctx.dom.queryOne("body");
-                    if (!body) return;
-
-                    const settings = getSettings();
-                    await cleanupPlayer();
-
-                    const script = await ctx.dom.createElement("script");
-                    script.setAttribute("data-anime-player", "true");
-                    script.setText(createPlayerScript(anilistId, settings));
-                    body.append(script);
-                } catch (error) {
-                    console.error("Error in plugin:", error);
-                }
+                const id = e.searchParams?.id;
+                if (id) currentAnilistId = id;
             });
-
             ctx.screen.loadCurrent();
         });
+
     });
 }
