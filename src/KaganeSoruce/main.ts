@@ -23,6 +23,59 @@ class Provider implements CustomSource {
         return "MANGA";
     }
 
+    async getMangaDetails(id: number): Promise<$app.AL_MangaDetailsById_Media | null> {
+        const map = $store.get("kagane") ?? {};
+        const realId = map[id];
+        if (!realId) return null;
+
+        try {
+            // 1. Obtener datos de la serie
+            const res = await fetch(`${this.api}/series/${realId}`);
+            if (!res.ok) return null;
+            const m = await res.json();
+
+            // 2. Construir la URL de la imagen (usando la versión compressed para consistencia)
+            const coverUrl = m.cover_image_id
+                ? `${this.api}/image/${m.cover_image_id}/compressed`
+                : "";
+
+            // 3. Mapear a la estructura de Seanime
+            return {
+                id: id,
+                siteUrl: `https://kagane.org/series/${realId}`,
+                status: this.mapStatus(m.publication_status),
+                type: "MANGA",
+                format: this.mapFormat(m.format),
+                title: {
+                    userPreferred: m.title || "Unknown",
+                    romaji: m.title || "Unknown",
+                    english: m.title || "",
+                    native: ""
+                },
+                coverImage: {
+                    extraLarge: coverUrl,
+                    large: coverUrl,
+                    medium: coverUrl,
+                    color: "#ffffff"
+                },
+                description: m.description || "",
+                isAdult: ["Erotica", "Pornographic"].includes(m.content_rating),
+                genres: [],
+                synonyms: m.alternate_titles || [],
+                startDate: { year: 2024, month: 1, day: 1 },
+                chapters: m.current_books || 0,
+                volumes: m.current_volumes || 0,
+                // Nota: La lista de capítulos (entries) suele gestionarse en otra parte
+                // del flujo o mediante una llamada adicional si Kagane los incluye aquí.
+                nextAiringEpisode: null,
+                relations: { edges: [] }
+            };
+        } catch (e) {
+            console.error("Error en getMangaDetails:", e);
+            return null;
+        }
+    }
+
     async listManga(search: string, page: number, perPage: number): Promise<ListResponse<$app.AL_BaseManga>> {
         try {
             const currentPage = Math.max(0, page - 1);
