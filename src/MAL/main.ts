@@ -20,13 +20,13 @@ class Provider implements CustomSource {
                 const a = data.data;
 
                 const anime: $app.AL_BaseAnime = {
+                    type: "ANIME",
                     id: a.mal_id,
                     siteUrl: a.url,
-                    status: a.status,
-                    season: a.season,
+                    status: this.mapStatus(a.status),
+                    season: this.mapSeason(a.season),
                     seasonYear: a.year,
-                    type: a.type,
-                    format: a.type,
+                    format: this.mapFormat(a.type),
                     bannerImage: a.images?.jpg?.large_image_url ?? a.images?.webp?.large_image_url,
                     coverImage: {
                         extraLarge: a.images?.jpg?.large_image_url,
@@ -128,11 +128,11 @@ class Provider implements CustomSource {
             id,
             idMal: id,
             siteUrl: anime.url,
-            status: anime.status,
-            season: anime.season,
+            status: this.mapStatus(anime.status),
+            season: this.mapSeason(anime.season),
             seasonYear: anime.year,
-            type: anime.type,
-            format: anime.type,
+            type: "ANIME",
+            format: this.mapFormat(anime.type),
             bannerImage: anime.images?.jpg?.large_image_url,
             episodes: anime.episodes,
             synonyms: anime.titles?.map((t: any) => t.title),
@@ -176,7 +176,8 @@ class Provider implements CustomSource {
                     id: m.mal_id,
                     idMal: m.mal_id,
                     siteUrl: m.url,
-                    status: m.status,
+                    type: "MANGA",
+                    status: this.mapStatus(m.status),
                     chapters: m.chapters,
                     volumes: m.volumes,
                     title: {
@@ -241,6 +242,7 @@ class Provider implements CustomSource {
                 english: a.title_english,
                 native: a.title_japanese,
             },
+            format: this.mapFormat(a.type),
             coverImage: {
                 extraLarge: a.images?.jpg?.large_image_url,
                 large: a.images?.jpg?.image_url,
@@ -277,7 +279,7 @@ class Provider implements CustomSource {
             id: m.mal_id,
             idMal: m.mal_id,
             siteUrl: m.url,
-            status: m.status,
+            status: this.mapStatus(m.status),
             chapters: m.chapters,
             volumes: m.volumes,
             title: {
@@ -308,5 +310,28 @@ class Provider implements CustomSource {
             page: page,
             totalPages: Math.ceil(data.length / perPage),
         };
+    }
+
+    private mapStatus(jikanStatus?: string): string | undefined {
+        if (!jikanStatus) return undefined;
+        const status = jikanStatus.toLowerCase();
+
+        if (status.includes("finished")) return "FINISHED";
+        if (status.includes("publishing") || status.includes("currently airing")) return "RELEASING";
+        if (status.includes("not yet")) return "NOT_YET_RELEASED";
+        if (status.includes("hiatus")) return "HIATUS";
+        if (status.includes("discontinued")) return "CANCELLED";
+
+        return "FINISHED";
+    }
+
+    private mapSeason(jikanSeason?: string): string | undefined {
+        if (!jikanSeason) return undefined;
+        return jikanSeason.toUpperCase();
+    }
+
+    private mapFormat(jikanType?: string): string | undefined {
+        if (!jikanType) return undefined;
+        return jikanType.toUpperCase();
     }
 }

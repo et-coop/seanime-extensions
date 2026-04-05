@@ -23,10 +23,10 @@ class Provider implements CustomSource {
             const item: AL_BaseManga = {
                 id: m.id,
                 siteUrl: m.links?.find((l: string) => l.includes("mangabaka.dev")),
-                status: m.status,
-                season: "",
+                status: this.mapStatus(m.status),
+                season: undefined,
                 type: "MANGA",
-                format: m.type,
+                format: this.mapMangaFormat(m.type),
                 bannerImage: m.source?.kitsu?.response?.bannerImage?.original?.url ?? m.source?.kitsu?.response?.bannerImage?.views?.[0]?.url ?? "",
                 chapters: Number(m.total_chapters),
                 volumes: Number(m.final_volume),
@@ -76,10 +76,10 @@ class Provider implements CustomSource {
                 id: m.id,
                 idMal: m.source?.my_anime_list?.id ?? null,
                 siteUrl: m.links?.find((l: string) => l.includes("mangabaka.dev")),
-                status: m.status,
-                season: "",
+                status: this.mapStatus(m.status),
+                season: undefined,
                 type: "MANGA",
-                format: m.type,
+                format: this.mapMangaFormat(m.type),
                 bannerImage: m.cover?.x350?.x1,
                 chapters: Number(m.total_chapters),
                 volumes: Number(m.final_volume),
@@ -112,5 +112,26 @@ class Provider implements CustomSource {
             page: page,
             totalPages: 1,
         };
+    }
+
+    private mapMangaFormat(type?: string): string {
+        if (!type) return "MANGA";
+        const t = type.toLowerCase();
+        if (t.includes("one") || t.includes("shot")) return "ONE_SHOT";
+        if (t.includes("novel")) return "NOVEL";
+        return "MANGA";
+    }
+
+    private mapStatus(jikanStatus?: string): string | undefined {
+        if (!jikanStatus) return undefined;
+        const status = jikanStatus.toLowerCase();
+
+        if (status.includes("finished")) return "FINISHED";
+        if (status.includes("publishing") || status.includes("currently airing")) return "RELEASING";
+        if (status.includes("not yet")) return "NOT_YET_RELEASED";
+        if (status.includes("hiatus")) return "HIATUS";
+        if (status.includes("discontinued")) return "CANCELLED";
+
+        return "FINISHED";
     }
 }

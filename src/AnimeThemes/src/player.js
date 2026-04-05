@@ -186,6 +186,27 @@ const renderThemes = (themes) => {
         return;
     }
 
+    const priority = { "OP": 1, "ED": 2, "IN": 3 };
+
+    themes.sort((a, b) => {
+        const parseType = (str) => {
+            const match = str.match(/^([A-Z]+)\s*(\d+)?/i);
+            return {
+                type: match ? match[1].toUpperCase() : "",
+                num: match && match[2] ? parseInt(match[2]) : 999
+            };
+        };
+
+        const aData = parseType(a.type);
+        const bData = parseType(b.type);
+
+        if (priority[aData.type] !== priority[bData.type]) {
+            return (priority[aData.type] || 4) - (priority[bData.type] || 4);
+        }
+
+        return aData.num - bData.num;
+    });
+
     els.themesList.innerHTML = themes.map(t => `
       <div class="theme-item"
            data-video="${t.videoUrl}"
@@ -204,7 +225,6 @@ const renderThemes = (themes) => {
       </div>
     `).join("");
 
-    // Click handlers
     els.themesList.querySelectorAll(".theme-item").forEach(item => {
         item.addEventListener("click", (e) => {
             if (e.target.closest(".theme-actions")) return;
@@ -226,9 +246,9 @@ const renderThemes = (themes) => {
     });
 
     if (AUTOPLAY) {
-        const firstOP = els.themesList.querySelector(".theme-item");
-        if (firstOP) {
-            playTheme(firstOP, true);
+        const firstItem = els.themesList.querySelector(".theme-item");
+        if (firstItem) {
+            playTheme(firstItem, true);
         }
     }
 };
@@ -357,25 +377,36 @@ const fetchThemes = async (providerOverride) => {
         try {
             const filtered = await fetchAniSongDBDirect(manualId);
             if (!filtered.length) throw new Error("No themes for matched anime");
+
             const songMap = new Map();
+
             filtered.forEach(r => {
+                if (r.animeENName !== manualId && r.animeJPName !== manualId) return;
+
                 const videoUrl = r.MQ || r.HQ;
                 if (!videoUrl) return;
+
                 const type = r.songType.replace("Opening","OP").replace("Ending","ED").replace("Insert Song","IN");
                 const key = `${type}-${r.songName}`;
+
                 if (!songMap.has(key)) {
                     songMap.set(key, {
                         anime: r.animeENName || r.animeJPName,
-                        type, song: r.songName, artist: r.songArtist,
+                        type,
+                        song: r.songName,
+                        artist: r.songArtist,
                         videoUrl: `https://naedist.animemusicquiz.com/${videoUrl}`,
                     });
                 }
             });
+
+            if (songMap.size === 0) throw new Error("No exact name matches found");
+
             renderThemes([...songMap.values()]);
             return;
         } catch (err) {
             console.error("[AnimeThemes] manual match failed:", err);
-            // fall through to normal fetch
+            // Si falla el filtro, intentará el fetch normal
         }
     }
 

@@ -1,5 +1,6 @@
 #anime-theme-player {
     width: 100%;
+    max-width: 100%;
     background: #070707;
     border: 1px solid #ffffff0d;
     border-radius: 12px;
@@ -10,8 +11,8 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    z-index: 50;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .atp-toolbar {
@@ -74,22 +75,19 @@
 }
 
 .atp-body {
-    display: flex;
-    flex-direction: row;
-    height: 70vh;
-    min-height: 500px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: auto;
+    min-height: 0;
 }
 
 .atp-themes-col {
-    width: 280px;
-    flex-shrink: 0;
-    border-right: 1px solid #ffffff0d;
-    background: #090909;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    width: 300px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    border-right: 1px solid #ffffff0d;
+    background: #0a0a0a;
+    max-height: 100%;
 }
 
 .atp-themes-col.collapsed {
@@ -97,10 +95,10 @@
     border-right: none;
 }
 
-.atp-themes-list {
+#atp-themes-list {
     flex: 1;
     overflow-y: auto;
-    padding: 0;
+    padding: 10px;
     scrollbar-width: thin;
     scrollbar-color: #333 transparent;
 }
@@ -270,29 +268,28 @@
 }
 
 .atp-video-wrapper {
-    width: 100%;
-    flex: 1;
     position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    background: #000;
+}
+
+#atp-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 #anime-theme-player video {
-
-    width: auto;
-    height: auto;
-
-    max-width: 100%;
-    max-height: 100%;
-
+    width: 100%;
+    height: 100%;
     display: block;
-
     margin: auto;
-
     object-fit: contain;
+    background: #000;
 }
 
 .atp-video-wrapper.audio-only-mode video {
