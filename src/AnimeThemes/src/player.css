@@ -344,6 +344,10 @@
     opacity: 1;
 }
 
+.atp-body.collapsed {
+    grid-template-columns: 0 1fr;
+}
+
 .atp-progress-row {
     display: flex;
     align-items: center;

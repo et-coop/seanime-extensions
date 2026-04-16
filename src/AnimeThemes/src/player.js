@@ -542,7 +542,10 @@ els.fullscreenBtn.addEventListener("click", () => {
 // toggle list
 els.toggleListBtn.addEventListener("click", () => {
     isListVisible = !isListVisible;
+
     els.themesCol.classList.toggle("collapsed", !isListVisible);
+    els.player.querySelector(".atp-body").classList.toggle("collapsed", !isListVisible);
+
     els.toggleListBtn.classList.toggle("active", isListVisible);
 });
 
