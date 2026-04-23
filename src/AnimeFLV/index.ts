@@ -3,7 +3,7 @@
 
 class Provider {
 
-    api = "https://www3.animeflv.net/api"
+    api = "https://www4.animeflv.net/api"
 
     getSettings(): Settings {
         return {
@@ -30,28 +30,27 @@ class Provider {
         const data = await res.json();
 
 
-        return data.map((anime: any) => ({
+        return data.Directory((anime: any) => ({
             id: anime.slug,
-            title: anime.title,
-            url: `https://www3.animeflv.net/anime/${anime.slug}`,
+            Title: anime.Title,
+            url: `https://www4.animeflv.net/anime/${anime.slug}`,
             subOrDub: "sub",
         }));
     }
 
     async findEpisodes(id: string): Promise<EpisodeDetails[]> {
-        const res = await fetch(`https://www3.animeflv.net/anime/${id}`);
+        const res = await fetch(`https://www4.animeflv.net/anime/${id}`);
         const html = await res.text();
 
-        // Extrae el array de episodes del <script>
         const match = html.match(/var episodes = (\[\[.*?\]\]);/);
         if (!match) return [];
 
         const episodes = JSON.parse(match[1]) as [number, number][];
 
-        const results = episodes.map(([episodeNum]) => ({
+        const results = episodes.map(([episodeNum, episodeId]) => ({
             id: episodeNum.toString(),
             number: episodeNum,
-            url: `https://www3.animeflv.net/ver/${id}-${episodeNum}`,
+            url: `https://www4.animeflv.net/ver/${id}-${episodeNum}`,
             title: `Episode ${episodeNum}`,
         }));
 
@@ -62,7 +61,7 @@ class Provider {
         const res = await fetch(episode.url);
         const html = await res.text();
 
-        const match = html.match(/var videos = (\{.*?\});/);
+        const match = html.match(/var videos = (\{[\s\S]*?\});/);
         if (!match) throw new Error("No se encontró el objeto 'videos' en el HTML.");
 
         const videos = JSON.parse(match[1]) as Record<string, any[]>;
@@ -139,5 +138,4 @@ class Provider {
             }],
         };
     }
-
 }
