@@ -332,6 +332,25 @@ class Provider implements CustomSource {
 
     private mapFormat(jikanType?: string): string | undefined {
         if (!jikanType) return undefined;
-        return jikanType.toUpperCase();
+
+        const type = jikanType.toUpperCase();
+
+        switch (type) {
+            case "TV SPECIAL":
+            case "SPECIAL":
+                return "SPECIAL";
+            case "TV":
+                return "TV";
+            case "MOVIE":
+                return "MOVIE";
+            case "OVA":
+                return "OVA";
+            case "ONA":
+                return "ONA";
+            case "MUSIC":
+                return "MUSIC";
+            default:
+                return type.replace(/\s+/g, '_');
+        }
     }
 }
