@@ -36,6 +36,7 @@ const els = {
     manualSearchBtn:  $("atp-manual-search-btn"),
     manualClearBtn:   $("atp-manual-clear-btn"),
     animeResults:     $("atp-anime-results"),
+    credits:          $("atp-song-credits"),
 };
 
 let video           = null;
@@ -165,9 +166,21 @@ const playTheme = (item, autoplay = true) => {
     const titleEl = document.getElementById("atp-song-title");
     const artistEl = document.getElementById("atp-song-artist");
 
+    const composer = item.dataset.composer || "";
+    const arranger = item.dataset.arranger || "";
+
     if(badgeEl) badgeEl.textContent = type;
     if(titleEl) titleEl.textContent = song;
     if(artistEl) artistEl.textContent = artist || anime;
+
+    if (els.credits) {
+        if (composer || arranger) {
+            els.credits.textContent = `${composer || '-'} • ${arranger || '-'}`;
+            els.credits.style.display = "block";
+        } else {
+            els.credits.style.display = "none";
+        }
+    }
 
     if (autoplay) {
         v.play().catch(() => {});
@@ -212,7 +225,10 @@ const renderThemes = (themes) => {
            data-video="${t.videoUrl}"
            data-type="${t.type}"
            data-song="${t.song}"
-           data-anime="${t.anime}">
+           data-anime="${t.anime}"
+           data-composer="${t.composer || ''}"
+           data-arranger="${t.arranger || ''}"
+           >
         <div class="theme-item-row">
           <span class="theme-type-badge">${t.type}</span>
           <span class="theme-song">${t.song}</span>
@@ -336,6 +352,8 @@ const fetchAniSongDB = async () => {
                 type,
                 song: s.songName,
                 artist: s.songArtist,
+                composer: s.songComposer,
+                arranger: s.songArranger,
                 videoUrl: `https://naedist.animemusicquiz.com/${file}`,
             });
         }
@@ -395,6 +413,8 @@ const fetchThemes = async (providerOverride) => {
                         type,
                         song: r.songName,
                         artist: r.songArtist,
+                        composer: r.songComposer,
+                        arranger: r.songArranger,
                         videoUrl: `https://naedist.animemusicquiz.com/${videoUrl}`,
                     });
                 }
@@ -459,6 +479,7 @@ const searchAniSongDBByName = async (query) => {
         }),
     });
     const data = await res.json();
+    console.log(data);
     const seen = new Map();
     data.forEach(r => {
         const ids = r.linked_ids?.anilist;
