@@ -166,19 +166,30 @@ const playTheme = (item, autoplay = true) => {
     const titleEl = document.getElementById("atp-song-title");
     const artistEl = document.getElementById("atp-song-artist");
 
-    const composer = item.dataset.composer || "";
-    const arranger = item.dataset.arranger || "";
 
     if(badgeEl) badgeEl.textContent = type;
     if(titleEl) titleEl.textContent = song;
     if(artistEl) artistEl.textContent = artist || anime;
 
-    if (els.credits) {
-        if (composer || arranger) {
-            els.credits.textContent = `${composer || '-'} • ${arranger || '-'}`;
-            els.credits.style.display = "block";
+    const composer = item.dataset.composer || "";
+    const arranger = item.dataset.arranger || "";
+    const creditsEl = document.getElementById("atp-song-credits");
+
+    if (creditsEl) {
+        const parts = [];
+
+        if (composer) {
+            parts.push(`<div class="atp-credit-item"><span class="atp-credit-label">COMPOSER: </span>${composer}</div>`);
+        }
+        if (arranger) {
+            parts.push(`<div class="atp-credit-item"><span class="atp-credit-label">ARRANGER: </span>${arranger}</div>`);
+        }
+
+        if (parts.length > 0) {
+            creditsEl.innerHTML = parts.join('');
+            creditsEl.style.display = 'flex';
         } else {
-            els.credits.style.display = "none";
+            creditsEl.style.display = 'none';
         }
     }
 

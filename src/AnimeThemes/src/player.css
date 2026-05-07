@@ -1,6 +1,7 @@
 #anime-theme-player {
-    width: 100%;
-    max-width: 100%;
+    width: 97%;
+    max-width: 97%;
+    height: 97%;
     background: #070707;
     border: 1px solid #ffffff0d;
     border-radius: 12px;
@@ -197,6 +198,7 @@
     align-items: center;
     gap: 16px;
     overflow: hidden;
+    flex: 0 1 45%;
 }
 
 .atp-song-badge {
@@ -227,15 +229,19 @@
 }
 
 .atp-song-credits {
-    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 9px;
     color: rgba(255, 255, 255, 0.45);
     text-align: right;
-    max-width: 180px;
+    max-width: 450px;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    line-height: 1;
+    line-height: 1.2;
 }
 
 .atp-song-artist {
@@ -250,7 +256,8 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    flex-shrink: 0;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .atp-big-ctrl-btn {
