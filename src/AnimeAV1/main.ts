@@ -125,34 +125,57 @@ class Provider {
             const mediaId = data[mediaDescriptor.id];
             const image = mediaId ? `${this.cdnUrl}/backdrops/${mediaId}.jpg` : undefined;
 
-            return episodeIndexes.map((epIdx: number, i: number) => {
-                const ep = data![epIdx];
+            return episodeIndexes
+                .filter((epIdx: number, i: number) => {
+                    const ep = data![epIdx];
 
-                let realNumber = i + 1;
-                if (typeof ep.number === 'number') {
-                    const resolvedNum = data![ep.number];
-                    if (typeof resolvedNum === 'number') realNumber = resolvedNum;
-                }
+                    let realNumber = i + 1;
 
-                let realTitle = `Episodio ${realNumber}`;
-                if (typeof ep.title === 'number') realTitle = data![ep.title];
-                else if (ep.title) realTitle = ep.title;
+                    if (typeof ep.number === 'number') {
+                        const resolvedNum = data![ep.number];
 
-                const episodeIdPayload = JSON.stringify({
-                    slug: slug,
-                    number: realNumber,
-                    type: type
+                        if (typeof resolvedNum === 'number') {
+                            realNumber = resolvedNum;
+                        }
+                    }
 
+                    return Number.isInteger(realNumber) && realNumber > 0;
+                })
+                .map((epIdx: number, i: number) => {
+                    const ep = data![epIdx];
+
+                    let realNumber = i + 1;
+
+                    if (typeof ep.number === 'number') {
+                        const resolvedNum = data![ep.number];
+
+                        if (typeof resolvedNum === 'number') {
+                            realNumber = resolvedNum;
+                        }
+                    }
+
+                    let realTitle = `Episodio ${realNumber}`;
+
+                    if (typeof ep.title === 'number') {
+                        realTitle = data![ep.title];
+                    } else if (ep.title) {
+                        realTitle = ep.title;
+                    }
+
+                    const episodeIdPayload = JSON.stringify({
+                        slug,
+                        number: realNumber,
+                        type
+                    });
+
+                    return {
+                        id: episodeIdPayload,
+                        number: realNumber,
+                        title: realTitle,
+                        url: `${this.baseUrl}/media/${slug}/${realNumber}`,
+                        image
+                    };
                 });
-
-                return {
-                    id: episodeIdPayload,
-                    number: realNumber,
-                    title: realTitle,
-                    url: `${this.baseUrl}/media/${slug}/${realNumber}`,
-                    image: image
-                };
-            });
 
         } catch (err) {
             console.error('Error finding episodes:', err);
