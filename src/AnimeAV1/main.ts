@@ -1,184 +1,105 @@
 // <reference path="../online-streaming-provider.d.ts" />
 
 class Provider {
-    baseUrl = "https://animeav1.com";
-    cdnUrl = "https://cdn.animeav1.com";
+    baseUrl = "https://monoschino2.com";
 
     getSettings(): Settings {
         return {
-            episodeServers: ["HLS"],
-            supportsDub: true,
+            episodeServers: ["Default"],
+            supportsDub: false, // MonosChinos es primordialmente subtitulado
         };
     }
 
-    private _resolveRemixData(json: any, isDub: boolean): SearchResult[] {
-        if (!json || !json.nodes) return [];
-
-        for (const node of json.nodes) {
-            if (node && node.uses && node.uses.search_params) {
-                const data = node.data;
-                if (!data || data.length === 0) continue;
-
-                const rootConfig = data[0];
-                if (!rootConfig || typeof rootConfig.results !== 'number') continue;
-
-                const resultsIndex = rootConfig.results;
-                const animePointers = data[resultsIndex];
-
-                if (!Array.isArray(animePointers)) continue;
-
-                return animePointers.map((pointer: number) => {
-                    const rawObj = data[pointer];
-                    if (!rawObj) return null;
-
-                    const realId = data[rawObj.id];
-                    const title = data[rawObj.title];
-                    const slug = data[rawObj.slug];
-
-                    if (!title || !slug) return null;
-
-                    const idPayload = JSON.stringify({ slug: slug, type: isDub ? "dub" : "sub" });
-
-                    return {
-                        id: idPayload,
-                        title: title,
-                        url: `${this.baseUrl}/media/${slug}`,
-                        image: `${this.cdnUrl}/covers/${realId}.jpg`,
-                        subOrDub: isDub ? "dub" : "sub"
-                    };
-                }).filter(Boolean) as SearchResult[];
-            }
-        }
-        return [];
-    }
-
     async search(query: SearchOptions): Promise<SearchResult[]> {
-        const params = new URLSearchParams();
-        params.append('page', '1');
+        if (!query.query || query.query.trim() === "") return [];
 
-        if (query.query && query.query.trim() !== "") {
-            params.append('search', query.query);
-        }
-
-        const url = `${this.baseUrl}/catalogo/__data.json?${params.toString()}`;
+        // MonosChinos utiliza /buscar?q=nombre-del-anime
+        const url = `${this.baseUrl}/buscar?q=${encodeURIComponent(query.query)}`;
 
         try {
             const response = await fetch(url);
             if (!response.ok) return [];
-            const json = await response.json();
+            const html = await response.text();
 
-            return this._resolveRemixData(json, query.dub || false);
+            const results: SearchResult[] = [];
+            
+            // Regex para capturar las tarjetas de anime en la búsqueda
+            // Estructura típica: <div class="col-md-3..."><a href="URL"><img src="IMAGE" alt="TITLE">...
+            const cardRegex = /<div class="col-[^>]*>[\s\S]*?<a href="([^"]+)"[^>]*>[\s\S]*?<img src="([^"]+)" alt="([^"]+)"/g;
+            let match;
+
+            while ((match = cardRegex.exec(html)) !== null) {
+                const animeUrl = match[1];
+                const image = match[2];
+                const title = match[3];
+
+                // Extraer el slug de la URL (ej: https://monoschino2.com/anime/shingeki-no-kyojin -> shingeki-no-kyojin)
+                const slugMatch = animeUrl.match(/\/anime\/([^/]+)/);
+                if (!slugMatch) continue;
+                const slug = slugMatch[1];
+
+                results.push({
+                    id: slug,
+                    title: title.trim(),
+                    url: animeUrl,
+                    image: image,
+                    subOrDub: "sub"
+                });
+            }
+
+            return results;
         } catch (error) {
-            console.error("Error searching AnimeAV1:", error);
+            console.error("Error searching MonosChinos:", error);
             return [];
         }
     }
 
     async findEpisodes(animeId: string): Promise<EpisodeDetails[]> {
-
-        let slug: string;
-        let type: "sub" | "dub" = "sub";
-
-        try {
-            const parsed = JSON.parse(animeId);
-            slug = parsed.slug;
-            if (parsed.type) type = parsed.type;
-        } catch {
-
-            slug = animeId;
-        }
-
-        const url = `${this.baseUrl}/media/${slug}/__data.json`;
+        // En este caso, el animeId es directamente el slug (ej: "one-piece")
+        const url = `${this.baseUrl}/anime/${animeId}`;
 
         try {
             const res = await fetch(url);
-            if (!res.ok) throw new Error("Error fetching episodes");
+            if (!res.ok) throw new Error("Error fetching anime page");
+            const html = await res.text();
 
-            const json = await res.json();
-            const nodes = json.nodes || [];
+            const episodes: EpisodeDetails[] = [];
 
-            let data: any[] | null = null;
-            let mediaDescriptor: any = null;
+            // Capturar la imagen de fondo o portada principal por si acaso
+            const backdropMatch = html.match(/<div class="banner-anime"[^>]*style="background-image: url\('([^']+)'\)/);
+            const image = backdropMatch ? backdropMatch[1] : undefined;
 
-            for (let i = 0; i < nodes.length; i++) {
-                const node = nodes[i];
-                if (!node?.data) continue;
+            // Regex para capturar los episodios del listado inferior
+            // Estructura típica: <a href="https://monoschino2.com/ver/slug-episodio-X" ...>
+            const epRegex = /<a href="([^"]+\/ver\/([^"]+)-episodio-(\d+))"[^>]*>[\s\S]*?<h3[^>]*>([\s\S]*?)<\/h3>/g;
+            let match;
 
-                for (const obj of node.data) {
-                    if (obj && typeof obj === 'object' && 'slug' in obj && 'episodes' in obj) {
-                        const slugPointer = obj.slug;
-                        if (typeof slugPointer === 'number' && node.data[slugPointer] === slug) {
-                            data = node.data;
-                            mediaDescriptor = obj;
-                            break;
-                        }
-                    }
-                }
-                if (data) break;
-            }
+            while ((match = epRegex.exec(html)) !== null) {
+                const epUrl = match[1];
+                const epSlug = match[2];
+                const epNumber = parseInt(match[3], 10);
+                const epTitle = match[4].replace(/<[^>]*>/g, '').trim(); // Limpiar tags HTML si los hay
 
-            if (!data || !mediaDescriptor) throw new Error("Anime no encontrado");
-
-            const episodeIndexes = data[mediaDescriptor.episodes];
-            if (!Array.isArray(episodeIndexes)) throw new Error("Lista inválida");
-
-            const mediaId = data[mediaDescriptor.id];
-            const image = mediaId ? `${this.cdnUrl}/backdrops/${mediaId}.jpg` : undefined;
-
-            return episodeIndexes
-                .filter((epIdx: number, i: number) => {
-                    const ep = data![epIdx];
-
-                    let realNumber = i + 1;
-
-                    if (typeof ep.number === 'number') {
-                        const resolvedNum = data![ep.number];
-
-                        if (typeof resolvedNum === 'number') {
-                            realNumber = resolvedNum;
-                        }
-                    }
-
-                    return Number.isInteger(realNumber) && realNumber > 0;
-                })
-                .map((epIdx: number, i: number) => {
-                    const ep = data![epIdx];
-
-                    let realNumber = i + 1;
-
-                    if (typeof ep.number === 'number') {
-                        const resolvedNum = data![ep.number];
-
-                        if (typeof resolvedNum === 'number') {
-                            realNumber = resolvedNum;
-                        }
-                    }
-
-                    let realTitle = `Episodio ${realNumber}`;
-
-                    if (typeof ep.title === 'number') {
-                        realTitle = data![ep.title];
-                    } else if (ep.title) {
-                        realTitle = ep.title;
-                    }
-
-                    const episodeIdPayload = JSON.stringify({
-                        slug,
-                        number: realNumber,
-                        type
-                    });
-
-                    return {
-                        id: episodeIdPayload,
-                        number: realNumber,
-                        title: realTitle,
-                        url: `${this.baseUrl}/media/${slug}/${realNumber}`,
-                        image
-                    };
+                const episodeIdPayload = JSON.stringify({
+                    slug: epSlug,
+                    number: epNumber
                 });
 
+                episodes.push({
+                    id: episodeIdPayload,
+                    number: epNumber,
+                    title: epTitle || `Episodio ${epNumber}`,
+                    url: epUrl,
+                    image: image
+                });
+            }
+
+            // MonosChinos suele listar los episodios del más reciente al más antiguo. 
+            // Los ordenamos de menor a mayor para que Seanime los procese correctamente.
+            return episodes.sort((a, b) => a.number - b.number);
+
         } catch (err) {
-            console.error('Error finding episodes:', err);
+            console.error('Error finding episodes on MonosChinos:', err);
             return [];
         }
     }
@@ -186,7 +107,6 @@ class Provider {
     async findEpisodeServer(episodeOrId: any, _server: string): Promise<EpisodeServer> {
         let slug: string;
         let number: number;
-        let type: string = "sub";
 
         const idStr = typeof episodeOrId === "string" ? episodeOrId : episodeOrId.id;
 
@@ -194,73 +114,68 @@ class Provider {
             const parsed = JSON.parse(idStr);
             slug = parsed.slug;
             number = parsed.number;
-            if (parsed.type) type = parsed.type;
         } catch (e) {
             throw new Error("ID inválido");
         }
 
-        const pageUrl = `${this.baseUrl}/media/${slug}/${number}/__data.json`;
+        // Construir la URL del reproductor del episodio
+        const pageUrl = `${this.baseUrl}/ver/${slug}-episodio-${number}`;
         const res = await fetch(pageUrl);
-        if(!res.ok) throw new Error("Error obteniendo datos");
-        const json = await res.json();
+        if (!res.ok) throw new Error("Error obteniendo el reproductor del episodio");
+        const html = await res.text();
 
-        let data: any[] | null = null;
-        let root: any = null;
+        // MonosChinos carga los reproductores mediante un array de pestañas o botones que contienen iframes codificados o directos.
+        // Buscamos los enlaces dentro de los atributos "data-player" o dentro de los scripts de los botones.
+        // Común: <button class="play-video" data-player="BASE64_O_URL">
+        const playerRegex = /data-player="([^"]+)"/g;
+        let match;
+        let streamUrl: string | null = null;
 
-        if (json.nodes) {
-            for (const node of json.nodes) {
-                if (node?.data) {
-                    const foundRoot = node.data.find((item: any) => item && typeof item === 'object' && 'embeds' in item);
-                    if (foundRoot) {
-                        data = node.data;
-                        root = foundRoot;
-                        break;
-                    }
+        while ((match = playerRegex.exec(html)) !== null) {
+            let rawUrl = match[1];
+
+            // Si está en Base64 (muy común en webs de anime para ocultar servidores), lo decodificamos
+            if (!rawUrl.startsWith('http') && !rawUrl.startsWith('//')) {
+                try {
+                    rawUrl = atob(rawUrl);
+                } catch (e) {
+                    continue; 
                 }
             }
-        }
 
-        if (!data || !root) throw new Error("No se encontraron servidores");
+            if (rawUrl.startsWith('//')) {
+                rawUrl = 'https:' + rawUrl;
+            }
 
-        const embedsIndex = root.embeds;
-        const embedsObj = data[embedsIndex];
-
-        const catKey = type.toUpperCase();
-
-        const listIndex = embedsObj?.[catKey];
-
-        if (typeof listIndex !== "number") throw new Error(`No hay contenido en ${catKey}`);
-
-        const serverList = data[listIndex];
-        if (!Array.isArray(serverList)) throw new Error("Lista vacía");
-
-        let chosen: VideoSource | null = null;
-
-        for (const ptr of serverList) {
-            const srv = data[ptr];
-            if (!srv) continue;
-            const serverName = data[srv.server];
-            const link = data[srv.url];
-
-            if (!serverName || !link) continue;
-
-            if (serverName === "HLS") {
-                chosen = {
-                    url: link.replace("/play/", "/m3u8/"),
-                    type: "m3u8",
-                    quality: "auto",
-                    subtitles: [],
-                };
+            // Buscamos prioritariamente streams que contengan archivos de video directos o HLS directos.
+            // Nota: Si MonosChinos usa reproductores externos puros (como Fembed, Mega, Okru), Seanime no los reproducirá nativamente 
+            // a menos que uses un extractor interno, pero si devuelve un .mp4 o un .m3u8, funcionará directo.
+            if (rawUrl.includes('m3u8') || rawUrl.includes('google') || rawUrl.includes('monoschino')) {
+                streamUrl = rawUrl;
                 break;
             }
+            
+            // Guardamos el primero disponible como fallback si no hay HLS ideal
+            if (!streamUrl) streamUrl = rawUrl;
         }
 
-        if (!chosen) throw new Error(`No se encontró stream HLS para ${type}`);
+        if (!streamUrl) throw new Error("No se encontraron servidores de streaming válidos");
+
+        // Determinar el tipo de stream
+        const isM3U8 = streamUrl.includes('m3u8');
 
         return {
-            server: "HLS",
-            headers: { Referer: "null" },
-            videoSources: [chosen]
+            server: "Default",
+            headers: { 
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer": this.baseUrl 
+            },
+            videoSources: [{
+                url: streamUrl,
+                type: isM3U8 ? "m3u8" : "mp4",
+                quality: "auto",
+                subtitles: []
+            }]
         };
     }
 }
